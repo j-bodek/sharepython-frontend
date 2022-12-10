@@ -1,7 +1,7 @@
 <template>
     <header>
         <!-- Navbar -->
-        <nav class="navbar navbar-expand-md navbar-dark bg-dark">
+        <nav class="navbar navbar-expand-md navbar-dark bg-dark w-100 position-fixed">
             <!-- Container wrapper -->
             <div class="container">
                 <!-- Navbar brand -->
