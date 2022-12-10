@@ -5,9 +5,9 @@
             <!-- Container wrapper -->
             <div class="container">
                 <!-- Navbar brand -->
-                <a class="navbar-brand me-2 fw-bold" href="#">
+                <router-link class="navbar-brand me-2 fw-bold" to="/">
                     SharePython
-                </a>
+                </router-link>
 
                 <!-- Toggle button -->
                 <button class="navbar-toggler" type="button" data-mdb-toggle="collapse"
@@ -19,12 +19,12 @@
                 <!-- Collapsible wrapper -->
                 <div class="collapse navbar-collapse justify-content-end" id="navbarButtonsExample">
                     <div class="d-flex align-items-center">
-                        <button type="button" class="btn btn-link text-light px-3 me-2">
+                        <router-link to="/login" class="nav-link btn shadow-0 text-light px-3 me-2">
                             Log In
-                        </button>
-                        <button type="button" class="btn btn-link text-light me-3">
+                        </router-link>
+                        <router-link to="/signup" class="nav-link btn shadow-0 text-light me-3">
                             Sign Up
-                        </button>
+                        </router-link>
                         <a class="btn btn-light px-3" target="_blank" href="https://github.com/LilJack118/sharepython"
                             role="button">
                             <i class="fab fa-github"></i>
@@ -40,8 +40,8 @@
 </template>
 
 <style>
-.btn-link:hover,
-.btn-link:focus {
+.nav-link:hover {
     color: #332d2d !important;
+    background-color: #fbfbfb;
 }
 </style>
