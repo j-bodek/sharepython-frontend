@@ -1,6 +1,10 @@
 # frontend
 
 ## Project setup
+Main npm packages:
+    - vue-router
+    - vuex
+    - axios
 ```
 npm install
 ```
