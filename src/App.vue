@@ -1,14 +1,18 @@
 <template>
   <main-header></main-header>
+  <router-view></router-view>
+  <main-footer></main-footer>
 </template>
 
 <script>
-import MainHeader from './components/layout/MainHeader.vue'
+import MainHeader from './components/layout/MainHeader.vue';
+import MainFooter from './components/layout/MainFooter.vue';
 
 export default {
   name: 'App',
   components: {
-    MainHeader
+    MainHeader,
+    MainFooter
   }
 }
 </script>
@@ -19,7 +23,9 @@ export default {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
-  color: #2c3e50;
+  height: fit-content;
+  overflow: hidden;
+  background: red;
   margin: 0;
 }
 </style>
