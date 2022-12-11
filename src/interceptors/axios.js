@@ -1,4 +1,5 @@
 import axios from 'axios';
+import store from '../store/index.js';
 
 axios.defaults.baseURL = "http://0.0.0.0:8000/api/";
 
@@ -25,6 +26,9 @@ axios.interceptors.response.use(resp => resp, async error =>{
             // do previous request
             return axios(error.config);
         }
+    }else{
+        // set user to null
+        store.dispatch("setUser", {"user":null})
     };
     refresh = false;
     return Promise.reject(error);

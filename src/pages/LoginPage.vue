@@ -4,6 +4,7 @@
             <h1 class="mb-5" style="font-size: 3rem">Log In</h1>
 
             <form class="w-100" v-on:submit.prevent="submit">
+                <p>{{ user }}</p>
                 <div class="mb-5">
                     <p v-if="error" class="mb-3 text-danger fw-bold">{{ error }}</p>
                     <!-- Email input -->
@@ -40,6 +41,11 @@ export default {
             error: "",
         }
     },
+    computed: {
+        user() {
+            return this.$store.getters["getUser"];
+        }
+    },
     methods: {
         submit() {
             axios.post("auth/token/", {
@@ -57,6 +63,8 @@ export default {
                     axios.defaults.headers.common["Authorization"] = `Bearers ${response.data.access}`;
                     // reset fields
                     this.resetFields();
+                    // set user
+                    this.$store.dispatch("setUser", { "user": response.data.user })
                     this.$router.push("/")
                 }
             })

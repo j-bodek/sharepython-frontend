@@ -19,11 +19,15 @@
                 <!-- Collapsible wrapper -->
                 <div class="collapse navbar-collapse justify-content-end" id="navbarButtonsExample">
                     <div class="d-flex align-items-center">
-                        <router-link to="/login" class="nav-link btn shadow-0 text-light px-3 me-2">
+                        <router-link v-if="(user === null)" to="/login"
+                            class="nav-link btn shadow-0 text-light px-3 me-2">
                             Log In
                         </router-link>
-                        <router-link to="/signup" class="nav-link btn shadow-0 text-light me-3">
+                        <router-link v-if="(user === null)" to="/signup" class="nav-link btn shadow-0 text-light me-3">
                             Sign Up
+                        </router-link>
+                        <router-link v-if="(user !== null)" to="/" class="nav-link btn shadow-0 text-light me-3">
+                            {{ user.first_name }} {{ user.last_name }}
                         </router-link>
                         <a class="btn btn-light px-3" target="_blank" href="https://github.com/LilJack118/sharepython"
                             role="button">
@@ -38,6 +42,17 @@
         <!-- Navbar -->
     </header>
 </template>
+
+<script>
+export default {
+    name: "MainHeader",
+    computed: {
+        user() {
+            return this.$store.getters["getUser"];
+        }
+    }
+}
+</script>
 
 <style>
 .nav-link:hover {
