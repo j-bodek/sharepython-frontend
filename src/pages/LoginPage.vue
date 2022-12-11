@@ -3,18 +3,20 @@
         <div class="m-auto w-50">
             <h1 class="mb-5" style="font-size: 3rem">Log In</h1>
 
-            <form class="w-100">
+            <form class="w-100" v-on:submit.prevent="submit">
                 <div class="mb-5">
+                    <p v-if="error" class="mb-3 text-danger fw-bold">{{ error }}</p>
                     <!-- Email input -->
                     <div class="form-outline mb-3">
-                        <input type="email" id="email_input" class="form-control text-white" />
-                        <label class="form-label text-white" for="email_input">Email address</label>
+                        <input v-model="email" type="email" name="email" class="form-control text-white" required />
+                        <label class="form-label text-white">Email address</label>
                     </div>
 
                     <!-- Password input -->
                     <div class="form-outline">
-                        <input type="password" id="password_input" class="form-control text-white" />
-                        <label class="form-label text-white" for="password_input">Password</label>
+                        <input v-model="password" type="password" name="password" class="form-control text-white"
+                            required />
+                        <label class="form-label text-white">Password</label>
                     </div>
                 </div>
 
@@ -25,11 +27,50 @@
     </div>
 
 </template>
+
 <script>
+import axios from 'axios';
+
 export default {
     name: "LoginPage",
+    data() {
+        return {
+            email: "",
+            password: "",
+            error: "",
+        }
+    },
+    methods: {
+        submit() {
+            axios.post("auth/token/", {
+                email: this.email,
+                password: this.password,
+            }, {
+                withCredentials: true,
+            }).catch(err => {
+                if (err.response.status === 401) {
+                    this.error = "Invalid email or password";
+                }
+            }).then(response => {
+                if (response) {
+                    localStorage.setItem("refresh", response.data.refresh);
+                    axios.defaults.headers.common["Authorization"] = `Bearers ${response.data.access}`;
+                    // reset fields
+                    this.resetFields();
+                    this.$router.push("/")
+                }
+            })
+
+        },
+        resetFields() {
+            this.email = '';
+            this.password = '';
+            this.error = '';
+        }
+    }
 }
 </script>
+
 <style>
 .form-control {
     border: 1px solid rgba(251, 251, 251, 0.3) !important;
