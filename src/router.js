@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import store from './store/index.js';
+import axios from 'axios';
 
 // pages
 import LandingPage from './pages/LandingPage.vue';
@@ -16,6 +17,11 @@ const router = createRouter({
 });
 
 router.beforeEach((to, from, next) => {
+    // if token is invalid and refresh token is expired, user
+    // credentials will be set to null
+    if (localStorage.getItem("access") || localStorage.getItem("refresh")){
+        axios.get("auth/token/verify/");
+    }
     const requiresGuest = to.matched.some((x) => x.meta.requiresGuest);
     const isLoggedin = store.getters["getUser"] !== null;
     if (requiresGuest && isLoggedin) {

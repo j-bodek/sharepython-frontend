@@ -2,6 +2,7 @@ import axios from 'axios';
 import store from '../store/index.js';
 
 axios.defaults.baseURL = "http://0.0.0.0:8000/api/";
+axios.defaults.headers.common["Authorization"] = `Bearer ${localStorage.getItem("access")}`;
 
 // this variable is used to prevent infinite loop if refresh request will
 // return 401
@@ -14,21 +15,24 @@ axios.interceptors.response.use(resp => resp, async error =>{
     if (error.response.status === 401 && !refresh){
         refresh = true;
         const {status, data}  = await axios.post('auth/token/refresh/', {
-            refresh: localStorage.getItem('refresh'),
+            refresh: localStorage.getItem('refresh') || 'invalid',
         }, {
             withCredentials: true
         });
         
         if (status === 200){
-            localStorage.setItem('refresh', data.refresh);
+            localStorage.setItem('access', data.access);
             // set default authorization header for all requests
-            axios.defaults.headers.common["Authorization"] = `Bearer ${data.token}`;
+            axios.defaults.headers.common["Authorization"] = `Bearer ${data.access}`;
+            error.config.headers["Authorization"] = `Bearer ${data.access}`;
             // do previous request
             return axios(error.config);
         }
     }else{
         // set user to null
-        store.dispatch("setUser", {"user":null})
+        store.dispatch("setUser", {"user":null});
+        localStorage.removeItem("access");
+        localStorage.removeItem("refresh");
     };
     refresh = false;
     return Promise.reject(error);

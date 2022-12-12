@@ -13,6 +13,9 @@ export default {
   components: {
     MainHeader,
     MainFooter
+  },
+  mounted() {
+    this.$store.dispatch("setUser", { "user": JSON.parse(localStorage.getItem("user")) })
   }
 }
 </script>

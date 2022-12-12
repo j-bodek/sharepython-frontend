@@ -60,6 +60,7 @@ export default {
             }).then(response => {
                 if (response) {
                     localStorage.setItem("refresh", response.data.refresh);
+                    localStorage.setItem("access", response.data.access);
                     axios.defaults.headers.common["Authorization"] = `Bearers ${response.data.access}`;
                     // reset fields
                     this.resetFields();
