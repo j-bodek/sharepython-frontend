@@ -30,9 +30,7 @@ axios.interceptors.response.use(resp => resp, async error =>{
         }
     }else{
         // set user to null
-        store.dispatch("setUser", {"user":null});
-        localStorage.removeItem("access");
-        localStorage.removeItem("refresh");
+        store.dispatch("resetUserData");
     };
     refresh = false;
     return Promise.reject(error);

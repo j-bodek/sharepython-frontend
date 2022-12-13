@@ -19,16 +19,22 @@
                 <!-- Collapsible wrapper -->
                 <div class="collapse navbar-collapse justify-content-end" id="navbarButtonsExample">
                     <div class="d-flex align-items-center">
-                        <router-link v-if="(user === null)" to="/login"
-                            class="nav-link btn shadow-0 text-light px-3 me-2">
-                            Log In
-                        </router-link>
-                        <router-link v-if="(user === null)" to="/signup" class="nav-link btn shadow-0 text-light me-3">
-                            Sign Up
-                        </router-link>
-                        <router-link v-if="(user !== null)" to="/" class="nav-link btn shadow-0 text-light me-3">
-                            {{ user.first_name }} {{ user.last_name }}
-                        </router-link>
+                        <div class="d-flex" v-if="(user === null)">
+                            <router-link to="/login" class="nav-link btn shadow-0 text-light px-3 me-2">
+                                Log In
+                            </router-link>
+                            <router-link to="/signup" class="nav-link btn shadow-0 text-light me-3">
+                                Sign Up
+                            </router-link>
+                        </div>
+                        <div class="d-flex" v-else>
+                            <button v-on:click="logoutUser" class="nav-link btn shadow-0 text-light me-3">
+                                LogOut
+                            </button>
+                            <router-link to="/settings" class="nav-link btn shadow-0 text-light me-3">
+                                {{ user.first_name }} {{ user.last_name }}
+                            </router-link>
+                        </div>
                         <a class="btn btn-light px-3" target="_blank" href="https://github.com/LilJack118/sharepython"
                             role="button">
                             <i class="fab fa-github"></i>
@@ -49,6 +55,12 @@ export default {
     computed: {
         user() {
             return this.$store.getters["getUser"];
+        }
+    },
+    methods: {
+        logoutUser() {
+            this.$store.dispatch("resetUserData");
+            this.$router.push("/");
         }
     }
 }

@@ -6,6 +6,7 @@ import axios from 'axios';
 import LandingPage from './pages/LandingPage.vue';
 import LoginPage from './pages/LoginPage.vue';
 import SignUpPage from './pages/SignUpPage.vue';
+import SettingsPage from './pages/SettingsPage.vue';
 
 const router = createRouter({
     history: createWebHistory(),
@@ -13,6 +14,7 @@ const router = createRouter({
         {path: '/', name:"home", component: LandingPage},
         {path: '/login', name:"login", "meta":{requiresGuest:true}, component: LoginPage},
         {path: '/signup', name:"signup", "meta":{requiresGuest:true}, component: SignUpPage},
+        {path: '/settings', name:"settings", "meta":{requiresAuthentication:true}, component: SettingsPage},
     ]
 });
 
@@ -23,10 +25,13 @@ router.beforeEach((to, from, next) => {
         axios.get("auth/token/verify/");
     }
     const requiresGuest = to.matched.some((x) => x.meta.requiresGuest);
+    const requiresAuthentication = to.matched.some((x) => x.meta.requiresAuthentication)
     const isLoggedin = store.getters["getUser"] !== null;
     if (requiresGuest && isLoggedin) {
       next("/");
-    }  else {
+    } else if(requiresAuthentication && !isLoggedin) {
+      next("/login");
+    } else {
       next();
     }
 });

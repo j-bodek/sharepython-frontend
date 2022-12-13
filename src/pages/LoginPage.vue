@@ -59,13 +59,11 @@ export default {
                 }
             }).then(response => {
                 if (response) {
-                    localStorage.setItem("refresh", response.data.refresh);
-                    localStorage.setItem("access", response.data.access);
+                    // set auth data
+                    this.$store.dispatch("setAuthData", { "data": response.data });
                     axios.defaults.headers.common["Authorization"] = `Bearers ${response.data.access}`;
                     // reset fields
                     this.resetFields();
-                    // set user
-                    this.$store.dispatch("setUser", { "user": response.data.user })
                     this.$router.push("/")
                 }
             })
