@@ -28,7 +28,7 @@ axios.interceptors.response.use(resp => resp, async error =>{
             // do previous request
             return axios(error.config);
         }
-    }else{
+    }else if(error.response.status === 401){
         // set user to null
         store.dispatch("resetUserData");
     };

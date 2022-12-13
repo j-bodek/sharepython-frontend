@@ -7,13 +7,13 @@
                     label="First Name" outline></mdb-input>
             </div>
             <div class="col-md-6 col-12 mb-3">
-                <mdb-input :modelValue="userData.last_name" class="text-white" labelClass="text-white" type="text"
+                <mdb-input v-model="userData.last_name" class="text-white" labelClass="text-white" type="text"
                     label="Last Name" outline></mdb-input>
             </div>
         </div>
         <!-- Email input -->
-        <mdb-input :modelValue="userData.email" class="text-white mb-3" labelClass="text-white" type="email"
-            label="Email" outline></mdb-input>
+        <mdb-input v-model="userData.email" class="text-white mb-3" labelClass="text-white" type="email" label="Email"
+            outline></mdb-input>
 
         <!-- Password input -->
         <mdb-input v-model="userData.password" class="text-white mb-3" labelClass="text-white" type="password"
