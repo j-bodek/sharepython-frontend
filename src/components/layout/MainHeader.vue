@@ -59,8 +59,11 @@ export default {
     },
     methods: {
         logoutUser() {
-            this.$store.dispatch("resetUserData");
-            this.$router.push("/");
+            let logout = window.confirm("Are you sure you want to log out?");
+            if (logout) {
+                this.$store.dispatch("resetUserData");
+                this.$router.push("/");
+            }
         }
     }
 }
