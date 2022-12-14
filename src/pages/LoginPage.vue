@@ -7,18 +7,15 @@
                 <p>{{ user }}</p>
                 <div class="mb-5">
                     <p v-if="error" class="mb-3 text-danger fw-bold">{{ error }}</p>
+
                     <!-- Email input -->
-                    <div class="form-outline mb-3">
-                        <input v-model="email" type="email" name="email" class="form-control text-white" required />
-                        <label class="form-label text-white">Email address</label>
-                    </div>
+                    <mdb-input v-model="email" class="text-white mb-3" labelClass="text-white" type="email"
+                        label="Email" outline></mdb-input>
 
                     <!-- Password input -->
-                    <div class="form-outline">
-                        <input v-model="password" type="password" name="password" class="form-control text-white"
-                            required />
-                        <label class="form-label text-white">Password</label>
-                    </div>
+                    <mdb-input v-model="password" class="text-white mb-3" labelClass="text-white" type="password"
+                        label="Password" outline></mdb-input>
+
                 </div>
 
                 <!-- Submit button -->
@@ -30,10 +27,14 @@
 </template>
 
 <script>
+import { MDBInput } from 'mdb-vue-ui-kit';
 import axios from 'axios';
 
 export default {
     name: "LoginPage",
+    components: {
+        "mdb-input": MDBInput,
+    },
     data() {
         return {
             email: "",
@@ -77,17 +78,3 @@ export default {
     }
 }
 </script>
-
-<style>
-.form-control {
-    border: 1px solid rgba(251, 251, 251, 0.3) !important;
-}
-
-.form-control:hover {
-    border: 1px solid rgba(251, 251, 251, 0.6) !important;
-}
-
-.form-control:focus {
-    border: 1px solid #3b71ca !important;
-}
-</style>

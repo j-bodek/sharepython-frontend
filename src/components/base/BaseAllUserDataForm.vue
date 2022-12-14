@@ -37,9 +37,9 @@ export default {
     },
     mounted() {
         this.userData = reactive({
-            "first_name": this.user.first_name,
-            "last_name": this.user.last_name,
-            "email": this.user.email,
+            "first_name": this.user ? this.user.first_name : "",
+            "last_name": this.user ? this.user.last_name : "",
+            "email": this.user ? this.user.email : "",
             "password": "",
         })
     },

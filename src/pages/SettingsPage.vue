@@ -13,7 +13,8 @@
                 <!-- Submit button -->
                 <button type="submit" class="btn btn-primary btn-block">Update</button>
             </form>
-            <button type="button" class="btn btn-danger btn-block mt-3">Delete Account</button>
+            <button @click="deleteUserAccount" type="button" class="btn btn-danger btn-block mt-3">Delete
+                Account</button>
         </div>
     </div>
 </template>
@@ -68,6 +69,16 @@ export default {
     methods: {
         updateUserData(event) {
             this.userData = event;
+        },
+        deleteUserAccount() {
+            let confirmed = window.confirm("Are you sure you want to delete your account? All saved data will be lost.");
+            if (confirmed) {
+                axios.delete("user/"
+                ).then(response => {
+                    this.$store.dispatch("resetUserData");
+                    this.$router.push("/signup");
+                })
+            }
         },
         submitUpdateUserData() {
             const updatedData = this.getUpdatedUserData();
