@@ -4,20 +4,20 @@
         <div class="row">
             <div class="col-md-6 col-12 mb-3">
                 <mdb-input v-model="userData.first_name" class="text-white" labelClass="text-white" type="text"
-                    label="First Name" outline></mdb-input>
+                    label="First Name" outline required></mdb-input>
             </div>
             <div class="col-md-6 col-12 mb-3">
                 <mdb-input v-model="userData.last_name" class="text-white" labelClass="text-white" type="text"
-                    label="Last Name" outline></mdb-input>
+                    label="Last Name" outline required></mdb-input>
             </div>
         </div>
         <!-- Email input -->
         <mdb-input v-model="userData.email" class="text-white mb-3" labelClass="text-white" type="email" label="Email"
-            outline></mdb-input>
+            outline required></mdb-input>
 
         <!-- Password input -->
         <mdb-input v-model="userData.password" class="text-white mb-3" labelClass="text-white" type="password"
-            label="Password" outline></mdb-input>
+            label="Password" outline required></mdb-input>
     </div>
 </template>
 <script>

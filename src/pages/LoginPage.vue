@@ -62,7 +62,6 @@ export default {
                 if (response) {
                     // set auth data
                     this.$store.dispatch("setAuthData", { "data": response.data });
-                    axios.defaults.headers.common["Authorization"] = `Bearers ${response.data.access}`;
                     // reset fields
                     this.resetFields();
                     this.$router.push("/")

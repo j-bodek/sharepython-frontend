@@ -22,7 +22,8 @@ router.beforeEach((to, from, next) => {
     // if token is invalid and refresh token is expired, user
     // credentials will be set to null
     if (localStorage.getItem("access") || localStorage.getItem("refresh")){
-        axios.get("auth/token/verify/");
+      axios.defaults.headers.common["Authorization"] = `Bearer ${localStorage.getItem("access")}`;
+      axios.get("auth/token/verify/");
     }
     const requiresGuest = to.matched.some((x) => x.meta.requiresGuest);
     const requiresAuthentication = to.matched.some((x) => x.meta.requiresAuthentication)

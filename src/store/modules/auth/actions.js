@@ -6,6 +6,8 @@ export default {
         localStorage.removeItem("user");
         localStorage.removeItem("access");
         localStorage.removeItem("refresh");
+        // remove authentication header
+        delete axios.defaults.headers.common["Authorization"]
     },
     setUser(context, payload){
         localStorage.setItem("user", JSON.stringify(payload.user));
