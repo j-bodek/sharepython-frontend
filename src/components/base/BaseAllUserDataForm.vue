@@ -45,7 +45,7 @@ export default {
     },
     watch: {
         userData: {
-            handler(val) {
+            handler() {
                 this.emitUserData();
             },
             deep: true

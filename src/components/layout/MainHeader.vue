@@ -1,6 +1,7 @@
 <template>
     <header>
-        <MDBNavbar expand="md" class="navbar navbar-expand-md navbar-dark bg-dark w-100 position-fixed" container>
+        <MDBNavbar style="z-index: 10000" expand="md"
+            class="navbar navbar-expand-md navbar-dark bg-dark w-100 position-fixed" container>
             <!-- Navbar brand -->
             <router-link class="navbar-brand me-2 fw-bold" to="/">
                 SharePython
@@ -54,10 +55,8 @@
 
 <script>
 import {
-    MDBBtn,
     MDBNavbar,
     MDBNavbarToggler,
-    MDBNavbarBrand,
     MDBNavbarNav,
     MDBNavbarItem,
     MDBCollapse,
@@ -71,10 +70,8 @@ import { ref } from 'vue';
 export default {
     name: "MainHeader",
     components: {
-        MDBBtn,
         MDBNavbar,
         MDBNavbarToggler,
-        MDBNavbarBrand,
         MDBNavbarNav,
         MDBNavbarItem,
         MDBCollapse,

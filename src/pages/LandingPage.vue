@@ -9,7 +9,7 @@
                 <base-slider :sliderList="sliderList"></base-slider>
                 <h1>python code!</h1>
             </div>
-            <button type="button" class="btn btn-lg btn-outline-primary btn-rounded start-btn"
+            <button type="button" @click="createCodespace" class="btn btn-lg btn-outline-primary btn-rounded start-btn"
                 data-mdb-ripple-color="dark">
                 Let's test it
             </button>
@@ -34,6 +34,18 @@ export default {
             ]
         }
     },
+    methods: {
+        createCodespace() {
+            // TODO
+            // send request to api and create new codespace
+            let dummy_uuid = "a841a176-c31b-4969-9e59-0aa1743b420a";
+            // redirect to codespace page
+            this.$router.push({
+                name: "codespace",
+                params: { uuid: dummy_uuid }
+            })
+        }
+    }
 }
 </script>
 

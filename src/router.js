@@ -7,6 +7,7 @@ import LandingPage from './pages/LandingPage.vue';
 import LoginPage from './pages/LoginPage.vue';
 import SignUpPage from './pages/SignUpPage.vue';
 import SettingsPage from './pages/SettingsPage.vue';
+import CodeSpacePage from './pages/CodeSpacePage.vue'
 
 const router = createRouter({
     history: createWebHistory(),
@@ -15,6 +16,7 @@ const router = createRouter({
         {path: '/login', name:"login", "meta":{requiresGuest:true}, component: LoginPage},
         {path: '/signup', name:"signup", "meta":{requiresGuest:true}, component: SignUpPage},
         {path: '/settings', name:"settings", "meta":{requiresAuthentication:true}, component: SettingsPage},
+        {path: '/codespace/:uuid/', name:"codespace", component: CodeSpacePage},
     ]
 });
 
