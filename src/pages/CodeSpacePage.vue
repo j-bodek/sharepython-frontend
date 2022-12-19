@@ -1,6 +1,5 @@
 <template>
     <div class="bg-dark text-light h-100 d-flex px-5" style="min-height: 100vh !important">
-        <!-- <h3 class="my-auto mx-auto">{{ uuid }}</h3> -->
         <div class="text-start w-100 mx-auto" style="margin: 100px 0px;">
 
             <!-- Action buttons -->
@@ -61,7 +60,7 @@ export default {
     data() {
         return {
             uuid: this.$route.params.uuid,
-            code: ref("print('Hello, world!')"),
+            code: ref(this.$store.getters["getInitialCodeSandbox"]),
             extensions: [python(), oneDark],
             // CodeMirror EditorView instance ref
             view: shallowRef({}),
