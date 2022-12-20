@@ -16,15 +16,25 @@
                     </button>
                 </div>
                 <div>
-                    <button class="button btn btn-sm text-white" style="background: #413A3A">
-                        <i class="fa-solid fa-brush"></i>
-                    </button>
+                    <MDBDropdown btnGroup dropstart v-model="themeDropdown">
+                        <MDBDropdownToggle id="themeBtn" class="button btn btn-sm text-white"
+                            style="background: #413A3A" @click="themeDropdown = !themeDropdown">
+                            <i class="fa-solid fa-brush"></i>
+                        </MDBDropdownToggle>
+                        <MDBDropdownMenu id="themeList">
+                            <MDBDropdownItem @click="changeTheme($event)" v-for="theme in themeNames"
+                                :class="{ 'active': theme === selectedTheme }" :data-theme="theme" text>
+                                {{ theme }}
+                            </MDBDropdownItem>
+                        </MDBDropdownMenu>
+                    </MDBDropdown>
                 </div>
             </div>
 
             <!-- Code Sandbox -->
             <codemirror v-model="code" autocomplete="false" placeholder="Code goes here..." :style="{ height: '400px' }"
-                :autofocus="true" :indent-with-tab="true" :tab-size="2" :extensions="extensions" @ready="handleReady" />
+                theme="github-dark" :autofocus="true" :indent-with-tab="true" :tab-size="2" :extensions="extensions"
+                @ready="handleReady" />
 
             <!-- Terminal Wrapper -->
             <div class="mt-3">
@@ -47,30 +57,79 @@
 </template>
 <script>
 // import { EditorState } from '@codemirror/state'
+import { MDBDropdown, MDBDropdownToggle, MDBDropdownMenu, MDBDropdownItem } from "mdb-vue-ui-kit";
 import { shallowRef, ref } from 'vue'
 import { Codemirror } from 'vue-codemirror'
 import { python } from '@codemirror/lang-python'
+// code mirror themes
 import { oneDark } from '@codemirror/theme-one-dark'
+import { materialLight } from '@ddietr/codemirror-themes/material-light'
+import { materialDark } from '@ddietr/codemirror-themes/material-dark'
+import { solarizedLight } from '@ddietr/codemirror-themes/solarized-light'
+import { solarizedDark } from '@ddietr/codemirror-themes/solarized-dark'
+import { dracula } from '@ddietr/codemirror-themes/dracula'
+import { githubLight } from '@ddietr/codemirror-themes/github-light'
+import { githubDark } from '@ddietr/codemirror-themes/github-dark'
+import { aura } from '@ddietr/codemirror-themes/aura'
+import { tokyoNight } from '@ddietr/codemirror-themes/tokyo-night'
+import { tokyoNightStorm } from '@ddietr/codemirror-themes/tokyo-night-storm'
+import { tokyoNightDay } from '@ddietr/codemirror-themes/tokyo-night-day'
 
 export default {
     name: "CodeSpacePage",
     components: {
-        Codemirror
+        Codemirror,
+        MDBDropdown,
+        MDBDropdownToggle,
+        MDBDropdownMenu,
+        MDBDropdownItem,
     },
     data() {
         return {
             uuid: this.$route.params.uuid,
             code: ref(this.$store.getters["getInitialCodeSandbox"]),
-            extensions: [python(), oneDark],
+            themes: {
+                "one-dark": oneDark,
+                "material-light": materialLight,
+                "material-dark": materialDark,
+                "solarized-light": solarizedLight,
+                "solirized-dark": solarizedDark,
+                "dracula": dracula,
+                "github-light": githubLight,
+                "github-dark": githubDark,
+                "aura": aura,
+                "tokyo-night": tokyoNight,
+                "tokyo-night-storm": tokyoNightStorm,
+                "tokyo-night-day": tokyoNightDay,
+            },
+            selectedTheme: "one-dark",
             // CodeMirror EditorView instance ref
             view: shallowRef({}),
-
+            themeDropdown: ref(false),
+        }
+    },
+    mounted() {
+        // disable grammarly
+        let codeSandbox = document.querySelector(".cm-content");
+        codeSandbox.setAttribute("data-gramm", "false")
+        codeSandbox.setAttribute("data-gramm_editor", "false")
+        codeSandbox.setAttribute("data-enable-grammarly", "false")
+    },
+    computed: {
+        themeNames() {
+            return Object.keys(this.themes);
+        },
+        extensions() {
+            return [python(), this.themes[this.selectedTheme]]
         }
     },
     methods: {
         handleReady(payload) {
             this.view.value = payload.view;
         },
+        changeTheme(e) {
+            this.selectedTheme = e.target.dataset.theme;
+        }
     }
 }
 </script>
@@ -94,5 +153,22 @@ export default {
 #execute_btn:hover {
     background-color: #14a44d !important;
     color: white !important;
+}
+
+#themeBtn::before {
+    content: none !important;
+}
+
+#themeList li {
+    cursor: pointer;
+    transition: all .1s ease-in-out;
+}
+
+#themeList li:has(.active) {
+    background-color: #eee !important;
+}
+
+#themeList li:hover {
+    background-color: #eee !important;
 }
 </style>
