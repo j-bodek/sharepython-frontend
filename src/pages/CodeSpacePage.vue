@@ -32,9 +32,9 @@
             </div>
 
             <!-- Code Sandbox -->
-            <codemirror v-model="code" autocomplete="false" placeholder="Code goes here..." :style="{ height: '400px' }"
-                theme="github-dark" :autofocus="true" :indent-with-tab="true" :tab-size="2" :extensions="extensions"
-                @ready="handleReady" />
+            <codemirror v-model="codespaceData.code" autocomplete="false" placeholder="Code goes here..."
+                :style="{ height: '400px' }" theme="github-dark" :autofocus="true" :indent-with-tab="true" :tab-size="2"
+                :extensions="extensions" @ready="handleReady" />
 
             <!-- Terminal Wrapper -->
             <div class="mt-3">
@@ -87,7 +87,7 @@ export default {
     data() {
         return {
             uuid: this.$route.params.uuid,
-            code: ref(this.$store.getters["getInitialCodeSandbox"]),
+            codespaceData: ref(this.$store.getters["getCodeSpaceData"]),
             themes: {
                 "one-dark": oneDark,
                 "material-light": materialLight,

@@ -17,7 +17,7 @@
 
         <!-- Password input -->
         <mdb-input v-model="userData.password" class="text-white mb-3" labelClass="text-white" type="password"
-            label="Password" outline required></mdb-input>
+            label="Password" outline :required="user ? false : true"></mdb-input>
     </div>
 </template>
 <script>

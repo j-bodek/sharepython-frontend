@@ -31,7 +31,8 @@
                                 </MDBDropdownToggle>
                                 <MDBDropdownMenu aria-labelledby="dropdownMenuButton">
                                     <MDBDropdownItem class="dropdown-item" to="#">Your CodeSpaces</MDBDropdownItem>
-                                    <MDBDropdownItem class="dropdown-item" to="#">New CodeSpace</MDBDropdownItem>
+                                    <MDBDropdownItem class="dropdown-item" text @click="createCodeSpace">New CodeSpace
+                                    </MDBDropdownItem>
                                     <MDBDropdownItem class="dropdown-item" to="/settings">Account Settings
                                     </MDBDropdownItem>
                                 </MDBDropdownMenu>
@@ -66,9 +67,11 @@ import {
     MDBDropdownItem
 } from 'mdb-vue-ui-kit';
 import { ref } from 'vue';
+import createCodeSpaceMixin from "../../mixins/createCodeSpaceMixin.js";
 
 export default {
     name: "MainHeader",
+    mixins: [createCodeSpaceMixin],
     components: {
         MDBNavbar,
         MDBNavbarToggler,
@@ -98,7 +101,7 @@ export default {
                 this.$store.dispatch("resetUserData");
                 this.$router.push("/");
             }
-        }
+        },
     }
 }
 </script>
