@@ -21,22 +21,31 @@ const router = createRouter({
 });
 
 router.beforeEach((to, from, next) => {
+    function checkPermissions(){
+      const requiresGuest = to.matched.some((x) => x.meta.requiresGuest);
+      const requiresAuthentication = to.matched.some((x) => x.meta.requiresAuthentication)
+      const isLoggedin = store.getters["getUser"] !== null;
+      if (requiresGuest && isLoggedin) {
+        next("/");
+      } else if(requiresAuthentication && !isLoggedin) {
+        next("/login");
+      } else {
+        next();
+      }
+    };
+
     // if token is invalid and refresh token is expired, user
     // credentials will be set to null
     if (localStorage.getItem("access") || localStorage.getItem("refresh")){
       axios.defaults.headers.common["Authorization"] = `Bearer ${localStorage.getItem("access")}`;
-      axios.get("auth/token/verify/");
+      axios.get("auth/token/verify/")
+      .then(response => {
+        checkPermissions();
+      });
+    }else{
+      checkPermissions();
     }
-    const requiresGuest = to.matched.some((x) => x.meta.requiresGuest);
-    const requiresAuthentication = to.matched.some((x) => x.meta.requiresAuthentication)
-    const isLoggedin = store.getters["getUser"] !== null;
-    if (requiresGuest && isLoggedin) {
-      next("/");
-    } else if(requiresAuthentication && !isLoggedin) {
-      next("/login");
-    } else {
-      next();
-    }
+
 });
 
 export default router;

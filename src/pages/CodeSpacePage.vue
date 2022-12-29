@@ -74,6 +74,7 @@ import { aura } from '@ddietr/codemirror-themes/aura'
 import { tokyoNight } from '@ddietr/codemirror-themes/tokyo-night'
 import { tokyoNightStorm } from '@ddietr/codemirror-themes/tokyo-night-storm'
 import { tokyoNightDay } from '@ddietr/codemirror-themes/tokyo-night-day'
+import axios from "axios";
 
 export default {
     name: "CodeSpacePage",
@@ -87,7 +88,6 @@ export default {
     data() {
         return {
             uuid: this.$route.params.uuid,
-            codespaceData: ref(this.$store.getters["getCodeSpaceData"]),
             themes: {
                 "one-dark": oneDark,
                 "material-light": materialLight,
@@ -111,11 +111,26 @@ export default {
     mounted() {
         // disable grammarly
         let codeSandbox = document.querySelector(".cm-content");
-        codeSandbox.setAttribute("data-gramm", "false")
-        codeSandbox.setAttribute("data-gramm_editor", "false")
-        codeSandbox.setAttribute("data-enable-grammarly", "false")
+        codeSandbox.setAttribute("data-gramm", "false");
+        codeSandbox.setAttribute("data-gramm_editor", "false");
+        codeSandbox.setAttribute("data-enable-grammarly", "false");
+        // set codespace data
+        if (this.$store.getters["getCodeSpaceData"].uuid !== this.uuid) {
+            axios.get(`codespace/${this.uuid}/`)
+                .catch(err => {
+                    this.$router.push("/");
+                    alert(err.response.data.detail);
+                }).then(response => {
+                    if (response) {
+                        this.$store.dispatch("setCodeSpaceData", { "data": response.data });
+                    }
+                })
+        }
     },
     computed: {
+        codespaceData() {
+            return this.$store.getters["getCodeSpaceData"];
+        },
         themeNames() {
             return Object.keys(this.themes);
         },

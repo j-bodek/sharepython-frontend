@@ -2,7 +2,9 @@ import axios from 'axios';
 import store from '../store/index.js';
 
 axios.defaults.baseURL = "http://0.0.0.0:8000/api/";
-axios.defaults.headers.common["Authorization"] = `Bearer ${localStorage.getItem("access")}`;
+if (localStorage.getItem("access")){
+    axios.defaults.headers.common["Authorization"] = `Bearer ${localStorage.getItem("access")}`;
+}
 
 // this variable is used to prevent infinite loop if refresh request will
 // return 401
