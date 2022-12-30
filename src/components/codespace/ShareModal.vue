@@ -23,6 +23,7 @@
         </MDBModalFooter>
     </MDBModal>
 </template>
+
 <script>
 import {
     MDBModal,
