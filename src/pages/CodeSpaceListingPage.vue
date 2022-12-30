@@ -33,6 +33,15 @@
             <div v-else class="px-3 text-center">
                 You don't have any CodeSpaces
             </div>
+            <div class="text-center mt-4">
+                <nav aria-label="Codespaces Pagination">
+                    <MDBPagination class="justify-content-center">
+                        <MDBPageItem v-for="[num, link] in pages" :active="num == current_page ? true : false"
+                            @click="updateCodeSpaces(link)">
+                            {{ num }}</MDBPageItem>
+                    </MDBPagination>
+                </nav>
+            </div>
         </div>
     </div>
 </template>
@@ -40,20 +49,30 @@
 import {
     MDBTable,
     MDBBtn,
-    MDBBadge
+    MDBBadge,
+    MDBPagination,
+    MDBPageNav,
+    MDBPageItem
 } from 'mdb-vue-ui-kit';
 import moment from 'moment';
 import axios from 'axios';
+import _ from 'lodash';
 
 export default {
     name: "CodeSpaceListingPage",
     components: {
         MDBTable,
         MDBBtn,
-        MDBBadge
+        MDBBadge,
+        MDBPagination,
+        MDBPageNav,
+        MDBPageItem
     },
     data() {
         return {
+            page_size: 5,
+            current_page: 1,
+            num_pages: 0,
             codespaces: [],
             visible_fields: [["Name", "name"], ["Created", "created_at"], ["Updated", "updated_at"]],
             query_fields: ["uuid", "name", "created_at", "updated_at"]
@@ -61,19 +80,28 @@ export default {
     },
     mounted() {
         let fields_query_param = this.query_fields.join(",");
-        axios.get(`codespaces/?fields=${fields_query_param}`)
-            .catch(err => {
-                this.$router.push("/");
-                alert(err.response.data.detail);
-            }).then(response => {
-                if (response) {
-                    this.codespaces = response.data.map(codespace => {
-                        codespace.created_at = moment(codespace.created_at).fromNow();
-                        codespace.updated_at = moment(codespace.updated_at).fromNow();
-                        return codespace;
-                    });
-                }
-            })
+        let url = `codespaces/?fields=${fields_query_param}&page_size=${this.page_size}`;
+        this.updateCodeSpaces(url);
+
+    },
+    computed: {
+        pages() {
+            let num_buttons = 3;
+            let start = 0;
+            if (this.current_page <= ((num_buttons - 1) / 2)) {
+                start = 1;
+            } else if (this.current_page + ((num_buttons - 1) / 2) > this.num_pages) {
+                start = Math.max(1, this.num_pages + 1 - num_buttons);
+            } else {
+                start = this.current_page - ((num_buttons - 1) / 2);
+            }
+
+            return _.range(start, Math.min(start + num_buttons, this.num_pages + 1)).map(page => {
+                return [
+                    page, `codespaces/?fields=${this.query_fields.join(",")}&page=${page}&page_size=${this.page_size}`
+                ]
+            });
+        }
     },
     methods: {
         deleteCodespace(uuid) {
@@ -84,7 +112,9 @@ export default {
                         alert(err.response.data.detail);
                     }).then(response => {
                         if (response) {
-                            this.codespaces = this.codespaces.filter(codespace => codespace.uuid !== uuid);
+                            // update codespaces
+                            let url = `codespaces/?fields=${this.query_fields.join(",")}&page=${this.current_page}&page_size=${this.page_size}`;
+                            this.updateCodeSpaces(url);
                         }
                     })
             }
@@ -94,7 +124,43 @@ export default {
                 name: "codespace_with_uuid",
                 params: { uuid: uuid }
             })
+        },
+        updateCodeSpaces(url) {
+            axios.get(url)
+                .catch(err => {
+                    this.$router.push("/");
+                    alert(err.response.data.detail);
+                }).then(response => {
+                    if (response) {
+                        this.current_page = response.data.current_page;
+                        this.num_pages = response.data.num_pages;
+                        this.codespaces = response.data.results.map(codespace => {
+                            codespace.created_at = moment(codespace.created_at).fromNow();
+                            codespace.updated_at = moment(codespace.updated_at).fromNow();
+                            return codespace;
+                        });
+                    }
+                })
         }
     }
 }
 </script>
+
+<style>
+.page-item a {
+    color: white !important;
+    cursor: pointer !important;
+}
+
+.page-item.active a {
+    color: black !important;
+}
+
+.page-item a:hover {
+    background-color: rgba(255, 255, 255, 0.1) !important
+}
+
+.page-item.active a:hover {
+    background-color: #e3ebf7 !important;
+}
+</style>
