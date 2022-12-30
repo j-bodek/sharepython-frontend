@@ -8,6 +8,7 @@ import LoginPage from './pages/LoginPage.vue';
 import SignUpPage from './pages/SignUpPage.vue';
 import SettingsPage from './pages/SettingsPage.vue';
 import CodeSpacePage from './pages/CodeSpacePage.vue'
+import CodeSpaceListingPage from './pages/CodeSpaceListingPage.vue'
 
 const router = createRouter({
     base: 'https://example.com/app',
@@ -19,6 +20,7 @@ const router = createRouter({
         {path: '/settings', name:"settings", "meta":{requiresAuthentication:true}, component: SettingsPage},
         {path: '/codespace/:uuid(tmp-[a-f0-9]{8}-?[a-f0-9]{4}-?4[a-f0-9]{3}-?[89ab][a-f0-9]{3}-?[a-f0-9]{12}|[a-f0-9]{8}-?[a-f0-9]{4}-?4[a-f0-9]{3}-?[89ab][a-f0-9]{3}-?[a-f0-9]{12})/', name:"codespace_with_uuid", component: CodeSpacePage},
         {path: '/codespace/:token([a-zA-Z0-9_-]*={0,3})/', name:"codespace_with_token", component: CodeSpacePage},
+        {path: '/codespaces/', name:"codespaces_list", "meta":{requiresAuthentication:true}, component: CodeSpaceListingPage},
     ]
 });
 

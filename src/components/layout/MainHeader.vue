@@ -30,7 +30,8 @@
                                     {{ user.first_name }} {{ user.last_name }}
                                 </MDBDropdownToggle>
                                 <MDBDropdownMenu aria-labelledby="dropdownMenuButton">
-                                    <MDBDropdownItem class="dropdown-item" to="#">Your CodeSpaces</MDBDropdownItem>
+                                    <MDBDropdownItem class="dropdown-item" to="/codespaces">Your CodeSpaces
+                                    </MDBDropdownItem>
                                     <MDBDropdownItem class="dropdown-item" text @click="createCodeSpace">New CodeSpace
                                     </MDBDropdownItem>
                                     <MDBDropdownItem class="dropdown-item" to="/settings">Account Settings
