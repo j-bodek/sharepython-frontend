@@ -1,6 +1,6 @@
 <template>
     <header>
-        <MDBNavbar style="z-index: 10000" expand="md"
+        <MDBNavbar style="z-index: 10" expand="md"
             class="navbar navbar-expand-md navbar-dark bg-dark w-100 position-fixed" container>
             <!-- Navbar brand -->
             <router-link class="navbar-brand me-2 fw-bold" to="/">

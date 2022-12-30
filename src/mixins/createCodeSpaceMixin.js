@@ -13,7 +13,7 @@ export default {
                     // redirect to codespace page
                     this.$store.dispatch("setCodeSpaceData", { "data": response.data });
                     this.$router.push({
-                        name: "codespace",
+                        name: "codespace_with_uuid",
                         params: { uuid: response.data.uuid }
                     })
                 }

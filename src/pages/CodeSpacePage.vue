@@ -1,11 +1,12 @@
 <template>
+    <share-modal :uuid="uuid" :token="token" v-model="shareModal" @close="shareModal = false"></share-modal>
     <div class="bg-dark text-light h-100 d-flex px-5" style="min-height: 100vh !important">
         <div class="text-start w-100 mx-auto" style="margin: 100px 0px;">
-
             <!-- Action buttons -->
             <div class="mb-3 d-flex">
                 <div class="w-100">
-                    <button class="button btn btn-sm text-white" style="background: #413A3A">
+                    <button v-if="uuid" aria-controls="shareModal" @click="shareModal = true"
+                        class="button btn btn-sm text-white" style="background: #413A3A">
                         <i class="fa-solid fa-share"></i>
                     </button>
                     <button class="button btn btn-sm text-white" style="background: #413A3A">
@@ -57,7 +58,12 @@
 </template>
 <script>
 // import { EditorState } from '@codemirror/state'
-import { MDBDropdown, MDBDropdownToggle, MDBDropdownMenu, MDBDropdownItem } from "mdb-vue-ui-kit";
+import {
+    MDBDropdown,
+    MDBDropdownToggle,
+    MDBDropdownMenu,
+    MDBDropdownItem,
+} from "mdb-vue-ui-kit";
 import { shallowRef, ref } from 'vue'
 import { Codemirror } from 'vue-codemirror'
 import { python } from '@codemirror/lang-python'
@@ -75,11 +81,13 @@ import { tokyoNight } from '@ddietr/codemirror-themes/tokyo-night'
 import { tokyoNightStorm } from '@ddietr/codemirror-themes/tokyo-night-storm'
 import { tokyoNightDay } from '@ddietr/codemirror-themes/tokyo-night-day'
 import axios from "axios";
+import ShareModal from '../components/codespace/ShareModal.vue';
 
 export default {
     name: "CodeSpacePage",
     components: {
         Codemirror,
+        ShareModal,
         MDBDropdown,
         MDBDropdownToggle,
         MDBDropdownMenu,
@@ -88,6 +96,7 @@ export default {
     data() {
         return {
             uuid: this.$route.params.uuid,
+            token: this.$route.params.token,
             themes: {
                 "one-dark": oneDark,
                 "material-light": materialLight,
@@ -106,6 +115,7 @@ export default {
             // CodeMirror EditorView instance ref
             view: shallowRef({}),
             themeDropdown: ref(false),
+            shareModal: ref(false),
         }
     },
     mounted() {
@@ -114,9 +124,11 @@ export default {
         codeSandbox.setAttribute("data-gramm", "false");
         codeSandbox.setAttribute("data-gramm_editor", "false");
         codeSandbox.setAttribute("data-enable-grammarly", "false");
+
         // set codespace data
-        if (this.$store.getters["getCodeSpaceData"].uuid !== this.uuid) {
-            axios.get(`codespace/${this.uuid}/`)
+        if (this.token || this.$store.getters["getCodeSpaceData"].uuid !== this.uuid) {
+            let id = this.uuid || this.token;
+            axios.get(`codespace/${id}/`)
                 .catch(err => {
                     this.$router.push("/");
                     alert(err.response.data.detail);
@@ -136,7 +148,7 @@ export default {
         },
         extensions() {
             return [python(), this.themes[this.selectedTheme]]
-        }
+        },
     },
     methods: {
         handleReady(payload) {
@@ -144,7 +156,7 @@ export default {
         },
         changeTheme(e) {
             this.selectedTheme = e.target.dataset.theme;
-        }
+        },
     }
 }
 </script>
