@@ -33,7 +33,7 @@
             <div v-else class="px-3 text-center">
                 You don't have any CodeSpaces
             </div>
-            <div class="text-center mt-4">
+            <div v-if="num_pages > 1" class="text-center mt-4">
                 <nav aria-label="Codespaces Pagination">
                     <MDBPagination class="justify-content-center">
                         <MDBPageItem v-for="[num, link] in pages" :active="num == current_page ? true : false"

@@ -1,4 +1,8 @@
 <template>
+    <portal v-if="codespaceData.name" to="navbar_brand">
+        <codespace-title :uuid="uuid" :name="codespaceData.name"
+            :created_by="codespaceData.created_by"></codespace-title>
+    </portal>
     <div class="mb-3 d-flex">
         <div class="w-100">
             <slot name="actionButtons">
@@ -38,6 +42,7 @@ import { tokyoNightDay } from '@ddietr/codemirror-themes/tokyo-night-day'
 import axios from "axios";
 // components
 import ChangeThemeButton from "./ChangeThemeButton.vue";
+import CodespaceTitle from "./CodespaceTitle.vue";
 
 export default {
     name: "CodeSpacePage",
@@ -45,6 +50,7 @@ export default {
     components: {
         Codemirror,
         ChangeThemeButton,
+        CodespaceTitle,
     },
     data() {
         return {
@@ -68,6 +74,7 @@ export default {
         }
     },
     mounted() {
+
         // disable grammarly
         let codeSandbox = document.querySelector(".cm-content");
         codeSandbox.setAttribute("data-gramm", "false");

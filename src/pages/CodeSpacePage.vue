@@ -17,9 +17,6 @@
                         <button class="button btn btn-sm text-white" style="background: #413A3A">
                             <i class="fa-solid fa-download"></i>
                         </button>
-                        <button class="button btn btn-sm text-white" style="background: #413A3A">
-                            <i class="fa-solid fa-plus"></i>
-                        </button>
                     </div>
                 </template>
             </code-sandbox>
@@ -54,3 +51,8 @@ export default {
     },
 }
 </script>
+<style scoped>
+.button:hover {
+    background-color: #4C4343 !important;
+}
+</style>

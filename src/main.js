@@ -1,8 +1,7 @@
 import { createApp } from 'vue'
 import 'mdb-vue-ui-kit/css/mdb.min.css';
 import VueCodemirror from 'vue-codemirror';
-// import { mdb } from 'mdb-vue-ui-kit/js/mdb.es.min.js';
-// import { mdb } from 'mdb-vue-ui-kit/src/index.free.ts';
+import PortalVue from 'portal-vue'
 
 
 import router from './router.js';
@@ -22,6 +21,8 @@ app.use(VueCodemirror, {
     indentWithTab: true,
     tabSize: 2,
     placeholder: 'Code goes here...',
-})
+});
+
+app.use(PortalVue);
 
 app.mount('#app');

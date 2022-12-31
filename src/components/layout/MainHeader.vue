@@ -3,9 +3,13 @@
         <MDBNavbar style="z-index: 10" expand="md"
             class="navbar navbar-expand-md navbar-dark bg-dark w-100 position-fixed" container>
             <!-- Navbar brand -->
-            <router-link class="navbar-brand me-2 fw-bold" to="/">
-                SharePython
-            </router-link>
+            <portal-target name="navbar_brand">
+                <router-link class="navbar-brand me-2 fw-bold" to="/">
+                    <i class="fa-brands fa-python me-2"></i>
+                    <span>SharePython</span>
+                </router-link>
+            </portal-target>
+
             <MDBNavbarToggler @click="collapse1 = !collapse1" target="#navbarSupportedContent"></MDBNavbarToggler>
             <MDBCollapse class="justify-content-end" v-model="collapse1" id="navbarSupportedContent">
 
