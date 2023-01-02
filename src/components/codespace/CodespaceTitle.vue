@@ -10,7 +10,8 @@
             class="text-white fw-bold p-0 m-0">
             {{ name }}
         </p>
-        <input v-else class="title-input" type="text" v-model="updated_name" v-on:keyup.enter="updateTitle">
+        <input v-else class="title-input" type="text" :style="{ width: navbarHeaderWrapperWidth + 'px' }"
+            v-model="updated_name" v-on:keyup.enter="updateTitle">
 
         <p v-if="created_by" class="text-muted p-0 m-0" style="font-size:12px">
             Created By: {{ created_by }}

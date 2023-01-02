@@ -17,7 +17,7 @@
     <!-- Code Sandbox -->
     <codemirror v-model="codespaceData.code" autocomplete="false" placeholder="Code goes here..."
         :style="{ height: '400px' }" theme="github-dark" :autofocus="true" :indent-with-tab="true" :tab-size="2"
-        :extensions="extensions" @ready="handleReady" />
+        :extensions="extensions" @ready="handleReady" @update:modelValue="onCodeChange" />
 </template>
 
 <script>
@@ -71,6 +71,14 @@ export default {
             selectedTheme: "one-dark",
             // CodeMirror EditorView instance ref
             view: shallowRef({}),
+            // websocket connection
+            connection: null,
+        }
+    },
+    created() {
+        this.connection = new WebSocket(`ws://localhost:8888/?token=${this.token}`)
+        this.connection.onmessage = function (event) {
+            console.log(event);
         }
     },
     mounted() {
@@ -106,6 +114,47 @@ export default {
     methods: {
         handleReady(payload) {
             this.view.value = payload.view;
+        },
+        onCodeChange(value, viewUpdate) {
+            let changes = viewUpdate.changes.toJSON();
+            let message = null;
+            if (Array.isArray(changes[0])) {
+                // value inserted at the start or everything (from start to end)
+                // is replaced or deleted
+                // first value - array of changes
+                // second value - code length or none
+
+                message = {
+                    operation: "insert_value",
+                    input: {
+                        position: {
+                            start: 0,
+                            end: changes[0][0],
+                        },
+                        value: changes[0].slice(1).join("\n"),
+                    }
+                };
+            } else {
+                // value inserted at the end or in the middle
+                // first value - insertion starting position
+                // second value - array of changes
+
+                message = {
+                    operation: "insert_value",
+                    input: {
+                        position: {
+                            start: changes[0],
+                            end: changes[0] + changes[1][0],
+                        },
+                        value: changes[1].slice(1).join("\n") || '',
+                    }
+                };
+
+            }
+
+            if (message) {
+                this.connection.send(JSON.stringify(message));
+            }
         },
         changeTheme(theme) {
             this.selectedTheme = theme;
