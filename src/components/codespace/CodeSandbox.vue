@@ -15,9 +15,10 @@
         </div>
     </div>
     <!-- Code Sandbox -->
-    <codemirror v-model="codespaceData.code" autocomplete="false" placeholder="Code goes here..."
-        :style="{ height: '400px' }" theme="github-dark" :autofocus="true" :indent-with-tab="true" :tab-size="2"
-        :extensions="extensions" @ready="handleReady" @update:modelValue="onCodeChange" />
+    <codemirror v-model="codespaceData.code" v-on:input="handleInput" autocomplete="false"
+        placeholder="Code goes here..." :style="{ height: '400px' }" theme="github-dark" :autofocus="true"
+        :indent-with-tab="true" :tab-size="2" :extensions="extensions" @ready="handleReady"
+        @update:modelValue="onCodeChange" />
 </template>
 
 <script>
@@ -43,7 +44,7 @@ import axios from "axios";
 // components
 import ChangeThemeButton from "./ChangeThemeButton.vue";
 import CodespaceTitle from "./CodespaceTitle.vue";
-
+import { EditorState, ChangeSet, Compartment } from "@codemirror/state"
 export default {
     name: "CodeSpacePage",
     props: ["uuid", "token"],
@@ -70,15 +71,20 @@ export default {
             },
             selectedTheme: "one-dark",
             // CodeMirror EditorView instance ref
-            view: shallowRef({}),
+            EditorView: shallowRef({}),
+            EditorState: shallowRef({}),
             // websocket connection
             connection: null,
+            connection_id: null,
+            isReadOnly: false,
         }
     },
     created() {
         this.connection = new WebSocket(`ws://localhost:8888/?token=${this.token}`)
-        this.connection.onmessage = function (event) {
-            console.log(event);
+
+        let that = this;
+        this.connection.onmessage = function (message) {
+            that.updateCodeOnWebSocketMessage(message)
         }
     },
     mounted() {
@@ -108,15 +114,39 @@ export default {
             return this.$store.getters["getCodeSpaceData"];
         },
         extensions() {
-            return [python(), this.themes[this.selectedTheme]]
+            return [python(), this.themes[this.selectedTheme], EditorState.readOnly.of(this.isReadOnly)]
         },
     },
     methods: {
         handleReady(payload) {
-            this.view.value = payload.view;
+            this.EditorView = payload.view;
+            this.EditorState = payload.state;
+        },
+        updateCodeOnWebSocketMessage(message) {
+            let data = JSON.parse(message.data);
+            if (data.operation == "connected") {
+                this.connection_id = data.data.id;
+            } else if (data.operation == 'insert_value' && data.sender != this.connection_id) {
+                let change = ChangeSet.of({
+                    from: data.input.position.start,
+                    to: data.input.position.end,
+                    insert: data.input.value,
+                }, data.input.doc_length);
+                // this parameter is used to defferentiate if change
+                // was received from websockets or from user input
+                change.isWebSocketUpdate = true;
+
+                this.EditorView.dispatch({
+                    changes: change,
+                })
+            }
+        },
+        handleInput() {
+            // console.log(this.EditorState)
         },
         onCodeChange(value, viewUpdate) {
             let changes = viewUpdate.changes.toJSON();
+
             let message = null;
             if (Array.isArray(changes[0])) {
                 // value inserted at the start or everything (from start to end)
@@ -126,11 +156,13 @@ export default {
 
                 message = {
                     operation: "insert_value",
+                    sender: this.connection_id,
                     input: {
                         position: {
                             start: 0,
                             end: changes[0][0],
                         },
+                        doc_length: viewUpdate.startState.doc.length,
                         value: changes[0].slice(1).join("\n"),
                     }
                 };
@@ -141,18 +173,21 @@ export default {
 
                 message = {
                     operation: "insert_value",
+                    sender: this.connection_id,
                     input: {
                         position: {
                             start: changes[0],
                             end: changes[0] + changes[1][0],
                         },
+                        doc_length: viewUpdate.startState.doc.length,
                         value: changes[1].slice(1).join("\n") || '',
                     }
                 };
 
             }
 
-            if (message) {
+
+            if (!viewUpdate.changes.isWebSocketUpdate && message) {
                 this.connection.send(JSON.stringify(message));
             }
         },
