@@ -80,15 +80,9 @@ export default {
         }
     },
     created() {
-        this.connection = new WebSocket(`ws://localhost:8888/?token=${this.token}`)
-
-        let that = this;
-        this.connection.onmessage = function (message) {
-            that.updateCodeOnWebSocketMessage(message)
-        }
+        this.connectWebSocket();
     },
     mounted() {
-
         // disable grammarly
         let codeSandbox = document.querySelector(".cm-content");
         codeSandbox.setAttribute("data-gramm", "false");
@@ -118,6 +112,29 @@ export default {
         },
     },
     methods: {
+        async connectWebSocket() {
+            let token = null;
+            if (!this.token) {
+                token = await this.getWebSocketAccessToken();
+            } else {
+                token = this.token;
+            }
+
+            this.connection = new WebSocket(`ws://localhost:8888/${token}/`)
+            let that = this;
+            this.connection.onmessage = function (message) {
+                that.updateCodeOnWebSocketMessage(message)
+            }
+        },
+        async getWebSocketAccessToken() {
+            const response = await axios.post("codespace/access/token/", {
+                codespace_uuid: this.uuid,
+                expire_time: 120,
+            }, {
+                withCredentials: true,
+            })
+            return response.data.token;
+        },
         handleReady(payload) {
             this.EditorView = payload.view;
             this.EditorState = payload.state;
