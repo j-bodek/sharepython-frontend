@@ -13,8 +13,8 @@
         <input v-else class="title-input" type="text" :style="{ width: navbarHeaderWrapperWidth + 'px' }"
             v-model="updated_name" v-on:keyup.enter="updateTitle">
 
-        <p v-if="created_by" class="text-muted p-0 m-0" style="font-size:12px">
-            Created By: {{ created_by }}
+        <p v-if="codespaceData.created_by" class="text-muted p-0 m-0" style="font-size:12px">
+            Created By: {{ codespaceData.created_by }}
         </p>
     </div>
 </template>
@@ -23,14 +23,25 @@ import axios from "axios";
 
 export default {
     name: "CodespaceTitle",
-    props: ["uuid", "name", "created_by"],
+    props: ["uuid"],
     data() {
         return {
-            updated_name: this.name,
+            updated_name: '',
             navbarHeaderWrapperWidth: 0,
         }
     },
+    computed: {
+        codespaceData() {
+            return this.$store.getters["getCodeSpaceData"];
+        },
+    },
+    watch: {
+        codespaceData(newData, oldData) {
+            this.updated_name = this.codespaceData.name;
+        }
+    },
     mounted() {
+        this.updated_name = this.codespaceData.name;
         this.navbarHeaderWrapperWidth = this.$refs.navbar_header_wrapper.offsetWidth;
         // add resize listener
         window.addEventListener('resize', e => {

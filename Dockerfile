@@ -1,7 +1,8 @@
 
 FROM node:16
 
-# make the 'app' folder the current working directory
+# make the 'frontend' folder the current working directory
+WORKDIR /frontend
 
 # copy both 'package.json' and 'package-lock.json' (if available)
 COPY package.json /package.json

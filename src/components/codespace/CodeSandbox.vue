@@ -1,7 +1,6 @@
 <template>
     <portal v-if="codespaceData.name" to="navbar_brand">
-        <codespace-title :uuid="uuid" :name="codespaceData.name"
-            :created_by="codespaceData.created_by"></codespace-title>
+        <codespace-title :uuid="uuid"></codespace-title>
     </portal>
     <div class="mb-3 d-flex">
         <div class="w-100">
@@ -15,10 +14,9 @@
         </div>
     </div>
     <!-- Code Sandbox -->
-    <codemirror v-model="codespaceData.code" v-on:input="handleInput" autocomplete="false"
-        placeholder="Code goes here..." :style="{ height: '400px' }" theme="github-dark" :autofocus="true"
-        :indent-with-tab="true" :tab-size="2" :extensions="extensions" @ready="handleReady"
-        @update:modelValue="onCodeChange" />
+    <codemirror v-model="codespaceData.code" autocomplete="false" placeholder="Code goes here..."
+        :style="{ height: '400px' }" theme="github-dark" :autofocus="true" :indent-with-tab="true" :tab-size="2"
+        :extensions="extensions" @ready="handleReady" @update:modelValue="onCodeChange" />
 </template>
 
 <script>
@@ -79,9 +77,6 @@ export default {
             isReadOnly: false,
         }
     },
-    created() {
-        this.connectWebSocket();
-    },
     mounted() {
         // disable grammarly
         let codeSandbox = document.querySelector(".cm-content");
@@ -90,18 +85,21 @@ export default {
         codeSandbox.setAttribute("data-enable-grammarly", "false");
 
         // set codespace data
-        if (this.token || this.$store.getters["getCodeSpaceData"].uuid !== this.uuid) {
-            let id = this.uuid || this.token;
-            axios.get(`codespace/${id}/`)
-                .catch(err => {
-                    this.$router.push("/");
-                    alert(err.response.data.detail);
-                }).then(response => {
-                    if (response) {
-                        this.$store.dispatch("setCodeSpaceData", { "data": response.data });
-                    }
-                })
-        }
+        let id = this.uuid || this.token;
+        axios.get(`codespace/${id}/`)
+            .catch(err => {
+                this.$router.push("/");
+                alert(err.response.data.detail);
+            }).then(response => {
+                if (response) {
+                    this.connectWebSocket();
+                    this.$store.dispatch("setCodeSpaceData", { "data": response.data });
+                }
+            })
+    },
+    unmounted() {
+        // make sure that if user changes page connection is closed
+        this.connection.close();
     },
     computed: {
         codespaceData() {
@@ -119,7 +117,6 @@ export default {
             } else {
                 token = this.token;
             }
-
             this.connection = new WebSocket(`ws://localhost:8888/${token}/`)
             let that = this;
             this.connection.onmessage = function (message) {
@@ -157,9 +154,6 @@ export default {
                     changes: change,
                 })
             }
-        },
-        handleInput() {
-            // console.log(this.EditorState)
         },
         onCodeChange(value, viewUpdate) {
             let changes = viewUpdate.changes.toJSON();
@@ -202,7 +196,6 @@ export default {
                 };
 
             }
-
 
             if (!viewUpdate.changes.isWebSocketUpdate && message) {
                 this.connection.send(JSON.stringify(message));
