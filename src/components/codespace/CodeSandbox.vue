@@ -14,10 +14,10 @@
         </div>
     </div>
     <!-- Code Sandbox -->
-    <codemirror v-model="codespaceData.code" autocomplete="false" ref="editor" @blur="codespaceReFocus"
-        placeholder="Code goes here..." :style="{ height: '400px' }" theme="github-dark" :autofocus="true"
-        :indent-with-tab="true" :tab-size="2" :extensions="extensions" @ready="handleReady"
-        @update:modelValue="onCodeChange" />
+    <codemirror class="cm-single-select" v-model="codespaceData.code" autocomplete="false" ref="editor"
+        @blur="codespaceReFocus" placeholder="Code goes here..." :style="{ height: '400px' }" theme="github-dark"
+        :autofocus="true" :indent-with-tab="true" :tab-size="2" :extensions="extensions" @ready="handleReady"
+        @update:modelValue="onCodeChange" @update="createSelection" />
 </template>
 
 <script>
@@ -43,7 +43,7 @@ import axios from "axios";
 // components
 import ChangeThemeButton from "./ChangeThemeButton.vue";
 import CodespaceTitle from "./CodespaceTitle.vue";
-import { EditorState, ChangeSet, Compartment } from "@codemirror/state"
+import { EditorState, EditorSelection, ChangeSet, Compartment } from "@codemirror/state"
 export default {
     name: "CodeSpacePage",
     props: ["uuid", "token"],
@@ -152,70 +152,53 @@ export default {
         },
         updateCodeOnWebSocketMessage(message) {
             let data = JSON.parse(message.data);
+
             if (data.operation == "connected") {
                 this.connection_id = data.data.id;
             } else if (data.operation == 'insert_value' && data.sender != this.connection_id) {
-                let change = ChangeSet.of({
-                    from: data.input.position.start,
-                    to: data.input.position.end,
-                    insert: data.input.value,
-                }, data.input.doc_length);
+                let changes = [];
+                data.changes.forEach(change => {
+                    let changeObj = ChangeSet.of(change, data.doc_length);
+                    changeObj.isWebSocketUpdate = true;
+                    changes.push(changeObj)
+                })
                 // this parameter is used to defferentiate if change
                 // was received from websockets or from user input
-                change.isWebSocketUpdate = true;
+                changes.isWebSocketUpdate = true;
                 this.EditorView.dispatch({
-                    changes: change,
-                    selection: {
-                        anchor: data.input.position.start + data.input.value.length,
-                        head: data.input.position.start + data.input.value.length,
-                    },
+                    changes: changes,
                 })
             }
         },
         onCodeChange(value, viewUpdate) {
-            let changes = viewUpdate.changes.toJSON();
-
-            let message = null;
-            if (Array.isArray(changes[0])) {
-                // value inserted at the start or everything (from start to end)
-                // is replaced or deleted
-                // first value - array of changes
-                // second value - code length or none
-
-                message = {
-                    operation: "insert_value",
-                    sender: this.connection_id,
-                    input: {
-                        position: {
-                            start: 0,
-                            end: changes[0][0],
-                        },
-                        doc_length: viewUpdate.startState.doc.length,
-                        value: changes[0].slice(1).join("\n"),
-                    }
-                };
-            } else {
-                // value inserted at the end or in the middle
-                // first value - insertion starting position
-                // second value - array of changes
-
-                message = {
-                    operation: "insert_value",
-                    sender: this.connection_id,
-                    input: {
-                        position: {
-                            start: changes[0],
-                            end: changes[0] + changes[1][0],
-                        },
-                        doc_length: viewUpdate.startState.doc.length,
-                        value: changes[1].slice(1).join("\n") || '',
-                    }
-                };
-
-            }
-
-            if (!viewUpdate.changes.isWebSocketUpdate && message) {
+            if (!viewUpdate.changes.isWebSocketUpdate) {
+                let message = this.createChangesMessage(viewUpdate);
                 this.connection.send(JSON.stringify(message));
+            }
+        },
+        createChangesMessage(viewUpdate) {
+            // create list of changes
+            let changes = []
+            viewUpdate.changes.iterChanges(function (fromA, toA, fromB, toB, inserted) {
+                changes.push({
+                    from: fromA,
+                    to: toA,
+                    insert: inserted.text.join("\n"),
+                })
+            }, false)
+
+            return {
+                operation: "insert_value",
+                sender: this.connection_id,
+                doc_length: viewUpdate.startState.doc.length,
+                changes: changes
+            };
+        },
+        createSelection(viewUpdate) {
+            let startSelection = viewUpdate.startState.selection;
+            let curSelection = viewUpdate.state.selection;
+            if (!curSelection.eq(startSelection)) {
+                console.log("listen for selection change")
             }
         },
         changeTheme(theme) {
