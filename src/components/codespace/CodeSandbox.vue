@@ -15,8 +15,8 @@
     </div>
     <!-- Code Sandbox -->
     <codemirror class="cm-single-select" v-model="codespaceData.code" autocomplete="false" ref="editor"
-        @blur="codespaceReFocus" placeholder="Code goes here..." :style="{ height: '400px' }" theme="github-dark"
-        :autofocus="true" :indent-with-tab="true" :tab-size="2" :extensions="extensions" @ready="handleReady"
+        placeholder="Code goes here..." :style="{ height: '400px' }" theme="github-dark" :autofocus="true"
+        :indent-with-tab="true" :tab-size="2" :extensions="extensions" @ready="handleReady"
         @update:modelValue="onCodeChange" @update="createSelection" />
 </template>
 
@@ -133,19 +133,6 @@ export default {
             })
             return response.data.token;
         },
-        codespaceReFocus() {
-            // if document has no focus prevent trying to
-            // re focus editor
-            if (!document.hasFocus()) {
-                return;
-            };
-
-            let that = this;
-            const timer = setInterval(() => {
-                that.EditorView.focus();
-                if (that.EditorView.hasFocus) clearInterval(timer);
-            }, 500);
-        },
         handleReady(payload) {
             this.EditorView = payload.view;
             this.EditorState = payload.state;
@@ -240,6 +227,10 @@ export default {
 .cm-editor:not(.cm-focused) .cm-cursor {
     display: block !important;
     border-left: 1.2px solid #528bff !important;
+}
+
+/* add animation to cursor layer in order to synchronise blinking effect */
+.cm-editor:not(.cm-focused) .cm-cursorLayer {
     animation: blink 1.5s step-end infinite;
 }
 
