@@ -17,7 +17,7 @@
     <codemirror class="cm-single-select" v-model="codespaceData.code" autocomplete="false" ref="editor"
         @blur="codespaceReFocus" placeholder="Code goes here..." :style="{ height: '400px' }" theme="github-dark"
         :autofocus="true" :indent-with-tab="true" :tab-size="2" :extensions="extensions" @ready="handleReady"
-        @update:modelValue="onCodeChange" />
+        @update:modelValue="onCodeChange" @update="createSelection" />
 </template>
 
 <script>
@@ -152,7 +152,6 @@ export default {
         },
         updateCodeOnWebSocketMessage(message) {
             let data = JSON.parse(message.data);
-
             if (data.operation == "connected") {
                 this.connection_id = data.data.id;
             } else if (data.operation == 'insert_value' && data.sender != this.connection_id) {
@@ -171,6 +170,16 @@ export default {
                 this.EditorView.dispatch({
                     changes: changes,
                     selection: EditorSelection.create(selections),
+                })
+            } else if (data.operation == 'create_selection' && data.sender != this.connection_id) {
+                let selections = data.selections.map(selection => {
+                    return EditorSelection.range(selection.anchor, selection.head);
+                })
+                let selection = EditorSelection.create(selections);
+                selection.isWebSocketUpdate = true;
+
+                this.EditorView.dispatch({
+                    selection: selection,
                 })
             }
         },
@@ -198,13 +207,27 @@ export default {
                 changes: changes
             };
         },
-        // createSelection(viewUpdate) {
-        //     let startSelection = viewUpdate.startState.selection;
-        //     let curSelection = viewUpdate.state.selection;
-        //     if (!curSelection.eq(startSelection)) {
-        //         console.log("listen for selection change")
-        //     }
-        // },
+        createSelection(viewUpdate) {
+            if (!viewUpdate.startState.selection.isWebSocketUpdate) {
+                let startSelection = viewUpdate.startState.selection;
+                let curSelection = viewUpdate.state.selection;
+                if (!curSelection.eq(startSelection)) {
+                    let selections = curSelection.toJSON().ranges.filter(selection => {
+                        if (selection["head"] - selection["anchor"] !== 0) {
+                            return selection;
+                        };
+                    })
+                    if (selections.length > 0) {
+                        let message = {
+                            operation: "create_selection",
+                            sender: this.connection_id,
+                            selections: selections
+                        };
+                        this.connection.send(JSON.stringify(message));
+                    }
+                }
+            }
+        },
         changeTheme(theme) {
             this.selectedTheme = theme;
         },
