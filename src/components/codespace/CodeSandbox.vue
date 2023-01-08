@@ -17,7 +17,7 @@
     <codemirror class="cm-single-select" v-model="codespaceData.code" autocomplete="false" ref="editor"
         @blur="codespaceReFocus" placeholder="Code goes here..." :style="{ height: '400px' }" theme="github-dark"
         :autofocus="true" :indent-with-tab="true" :tab-size="2" :extensions="extensions" @ready="handleReady"
-        @update:modelValue="onCodeChange" @update="createSelection" />
+        @update:modelValue="onCodeChange" />
 </template>
 
 <script>
@@ -156,17 +156,21 @@ export default {
             if (data.operation == "connected") {
                 this.connection_id = data.data.id;
             } else if (data.operation == 'insert_value' && data.sender != this.connection_id) {
-                let changes = [];
-                data.changes.forEach(change => {
-                    let changeObj = ChangeSet.of(change, data.doc_length);
-                    changeObj.isWebSocketUpdate = true;
-                    changes.push(changeObj)
+
+                let insertedBefore = 0;
+                let selections = data.changes.map(change => {
+                    let sel = EditorSelection.cursor(change.from + insertedBefore + change.insert.length);
+                    insertedBefore += (change.from - change.to + change.insert.length);
+                    return sel
                 })
+
                 // this parameter is used to defferentiate if change
                 // was received from websockets or from user input
+                let changes = ChangeSet.of(data.changes, data.doc_length)
                 changes.isWebSocketUpdate = true;
                 this.EditorView.dispatch({
                     changes: changes,
+                    selection: EditorSelection.create(selections),
                 })
             }
         },
@@ -194,13 +198,13 @@ export default {
                 changes: changes
             };
         },
-        createSelection(viewUpdate) {
-            let startSelection = viewUpdate.startState.selection;
-            let curSelection = viewUpdate.state.selection;
-            if (!curSelection.eq(startSelection)) {
-                console.log("listen for selection change")
-            }
-        },
+        // createSelection(viewUpdate) {
+        //     let startSelection = viewUpdate.startState.selection;
+        //     let curSelection = viewUpdate.state.selection;
+        //     if (!curSelection.eq(startSelection)) {
+        //         console.log("listen for selection change")
+        //     }
+        // },
         changeTheme(theme) {
             this.selectedTheme = theme;
         },
