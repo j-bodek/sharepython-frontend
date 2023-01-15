@@ -100,7 +100,7 @@ export default {
     },
     unmounted() {
         // make sure that if user changes page connection is closed
-        this.connection.close();
+        this.connection.close(1000, "unmounted");
     },
     computed: {
         codespaceData() {
@@ -120,6 +120,9 @@ export default {
             }
             this.connection = new WebSocket(`ws://localhost:8888/codespace/${token}/`)
             let that = this;
+            this.connection.addEventListener("close", e => {
+                that.handleConnectionClosed(e);
+            })
             this.connection.onmessage = function (message) {
                 that.updateCodeOnWebSocketMessage(message)
             }
@@ -136,6 +139,12 @@ export default {
         handleReady(payload) {
             this.EditorView = payload.view;
             this.EditorState = payload.state;
+        },
+        handleConnectionClosed(event) {
+            if (event.reason != "unmounted") {
+                alert("Session has expired. Refresh to reconnect");
+                location.reload();
+            };
         },
         updateCodeOnWebSocketMessage(message) {
             let data = JSON.parse(message.data);
