@@ -8,10 +8,10 @@
         <p v-if="!uuid" :style="{ width: navbarHeaderWrapperWidth + 'px' }"
             style="white-space: nowrap; text-overflow: ellipsis !important; overflow: hidden"
             class="text-white fw-bold p-0 m-0">
-            {{ updated_name }}
+            {{ name.value }}
         </p>
         <input v-else class="title-input" type="text" :style="{ width: navbarHeaderWrapperWidth + 'px' }"
-            v-model="updated_name" v-on:keyup.enter="updateTitle">
+            v-model="name.value" v-on:keyup.enter="updateTitle">
 
         <p v-if="codespaceData.created_by" class="text-muted p-0 m-0" style="font-size:12px">
             Created By: {{ codespaceData.created_by }}
@@ -26,7 +26,7 @@ export default {
     props: ["uuid"],
     data() {
         return {
-            updated_name: '',
+            name: { value: "", previous_value: "" },
             navbarHeaderWrapperWidth: 0,
         }
     },
@@ -37,11 +37,13 @@ export default {
     },
     watch: {
         codespaceData(newData, oldData) {
-            this.updated_name = this.codespaceData.name;
+            this.name["value"] = this.codespaceData.name;
         }
     },
     mounted() {
-        this.updated_name = this.codespaceData.name;
+        this.name["value"] = this.codespaceData.name;
+        this.name["previous_value"] = this.codespaceData.name;
+
         this.navbarHeaderWrapperWidth = this.$refs.navbar_header_wrapper.offsetWidth;
         // add resize listener
         window.addEventListener('resize', e => {
@@ -50,10 +52,20 @@ export default {
     },
     methods: {
         updateTitle() {
-            axios.patch(`codespace/${this.uuid}/`, { "name": this.updated_name }, {
+            if (this.name.value == this.name.previous_value) {
+                alert("CodeSpace title hasn't changed");
+                return;
+            };
+
+            axios.patch(`codespace/${this.uuid}/`, { "name": this.name.value }, {
                 withCredentials: true,
             }).catch(err => {
                 alert(err.response.data.detail);
+            }).then(response => {
+                if (response.status == 200) {
+                    this.name['previous_value'] = this.name['value'];
+                    alert("Successfully updated CodeSpace title!");
+                }
             })
         }
     }
