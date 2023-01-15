@@ -8,7 +8,7 @@
         <p v-if="!uuid" :style="{ width: navbarHeaderWrapperWidth + 'px' }"
             style="white-space: nowrap; text-overflow: ellipsis !important; overflow: hidden"
             class="text-white fw-bold p-0 m-0">
-            {{ name }}
+            {{ updated_name }}
         </p>
         <input v-else class="title-input" type="text" :style="{ width: navbarHeaderWrapperWidth + 'px' }"
             v-model="updated_name" v-on:keyup.enter="updateTitle">

@@ -118,7 +118,7 @@ export default {
             } else {
                 token = this.token;
             }
-            this.connection = new WebSocket(`ws://localhost:8888/${token}/`)
+            this.connection = new WebSocket(`ws://localhost:8888/codespace/${token}/`)
             let that = this;
             this.connection.onmessage = function (message) {
                 that.updateCodeOnWebSocketMessage(message)
