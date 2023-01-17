@@ -51,7 +51,7 @@ export default {
     },
 }
 </script>
-<style scoped>
+<style >
 .button:hover {
     background-color: #4C4343 !important;
 }

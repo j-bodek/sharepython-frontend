@@ -8,7 +8,14 @@
 
             </slot>
         </div>
-        <div>
+        <div class="d-flex">
+            <div v-if="unsavedChanges" class="my-auto me-2">
+                <p style="font-size:10px" class="text-warning m-0 p-0 text-nowrap">unsaved changes</p>
+            </div>
+            <button v-if="uuid" class="button btn btn-sm text-white me-1" @click="saveChanges"
+                style="background: #413A3A">
+                <i class="fa-solid fa-floppy-disk"></i>
+            </button>
             <change-theme-button :themes="themes" :selectedTheme="selectedTheme"
                 @change="changeTheme"></change-theme-button>
         </div>
@@ -76,7 +83,12 @@ export default {
             connection: null,
             connection_id: null,
             isReadOnly: false,
+            unsavedChanges: false,
         }
+    },
+    created() {
+        // this will display popup informing about unsaved changes
+        window.onbeforeunload = () => (this.unsavedChanges && this.uuid ? true : null);
     },
     mounted() {
         // disable grammarly
@@ -136,6 +148,20 @@ export default {
             })
             return response.data.token;
         },
+        saveChanges() {
+            if (this.unsavedChanges && this.uuid) {
+                axios.patch(`codespace/save_changes/${this.uuid}/`)
+                    .catch(err => {
+                        alert(err.response.data.detail);
+                    }).then(response => {
+                        if (response.status == 200) {
+                            this.unsavedChanges = false;
+                        }
+                    })
+            } else {
+                alert("You don't have permission to save changes, or don't have any changes at all.")
+            }
+        },
         handleReady(payload) {
             this.EditorView = payload.view;
             this.EditorState = payload.state;
@@ -151,7 +177,6 @@ export default {
             if (data.operation == "connected") {
                 this.connection_id = data.data.id;
             } else if (data.operation == 'insert_value' && data.sender != this.connection_id) {
-
                 let insertedBefore = 0;
                 let selections = data.changes.map(change => {
                     let sel = EditorSelection.cursor(change.from + insertedBefore + change.insert.length);
@@ -180,6 +205,7 @@ export default {
             }
         },
         onCodeChange(value, viewUpdate) {
+            this.unsavedChanges = true;
             if (!viewUpdate.changes.isWebSocketUpdate) {
                 let message = this.createChangesMessage(viewUpdate);
                 this.connection.send(JSON.stringify(message));
