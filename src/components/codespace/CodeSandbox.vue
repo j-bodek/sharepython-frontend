@@ -9,7 +9,7 @@
             </slot>
         </div>
         <div class="d-flex">
-            <div v-if="unsavedChanges" class="my-auto me-2">
+            <div v-if="uuid && unsavedChanges" class="my-auto me-2">
                 <p style="font-size:10px" class="text-warning m-0 p-0 text-nowrap">unsaved changes</p>
             </div>
             <button v-if="uuid" class="button btn btn-sm text-white me-1" @click="saveChanges"
@@ -111,6 +111,12 @@ export default {
             })
     },
     unmounted() {
+        if (this.uuid && this.unsavedChanges) {
+            let save_chagnes = confirm("Do you want to save your changes?");
+            if (save_chagnes) {
+                axios.patch(`codespace/save_changes/${this.uuid}/`)
+            }
+        }
         // make sure that if user changes page connection is closed
         this.connection.close(1000, "unmounted");
     },

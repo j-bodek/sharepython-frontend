@@ -6,10 +6,6 @@
             <a class="fw-bold text-decoration-underline mx-1" href="https://github.com/LilJack118/" target="_blank">
                 Jakub Bodek
             </a>
-            <span>and</span>
-            <a class="fw-bold text-decoration-underline mx-1" href="https://github.com/skublin/" target="_blank">
-                Szymon Kublin
-            </a>
         </div>
         <!-- Copyright -->
     </footer>
