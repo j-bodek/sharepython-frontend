@@ -44,10 +44,19 @@ export default {
     data() {
         return {
             uuid: this.$route.params.uuid,
-            token: this.$route.params.token,
+            route_token: this.$route.params.token,
             view: shallowRef({}),
             shareModal: ref(false),
         }
+    },
+    computed: {
+        token() {
+            if (this.uuid.startsWith("tmp-")) {
+                return this.uuid;
+            } else {
+                return this.route_token;
+            }
+        },
     },
 }
 </script>

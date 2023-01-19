@@ -12,8 +12,8 @@
             <div v-if="uuid && unsavedChanges" class="my-auto me-2">
                 <p style="font-size:10px" class="text-warning m-0 p-0 text-nowrap">unsaved changes</p>
             </div>
-            <button v-if="uuid" class="button btn btn-sm text-white me-1" @click="saveChanges"
-                style="background: #413A3A">
+            <button v-if="uuid && !this.uuid.startsWith('tmp-')" class="button btn btn-sm text-white me-1"
+                @click="saveChanges" style="background: #413A3A">
                 <i class="fa-solid fa-floppy-disk"></i>
             </button>
             <change-theme-button :themes="themes" :selectedTheme="selectedTheme"
@@ -217,7 +217,9 @@ export default {
             }
         },
         onCodeChange(value, viewUpdate) {
-            this.unsavedChanges = true;
+            if (!this.uuid.startsWith("tmp-")) {
+                this.unsavedChanges = true;
+            }
             if (!this.isReadOnly && !viewUpdate.changes.isWebSocketUpdate) {
                 let message = this.createChangesMessage(viewUpdate);
                 this.sendWebSocketMessage(message);
