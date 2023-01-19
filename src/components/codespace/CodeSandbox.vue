@@ -82,7 +82,7 @@ export default {
             // websocket connection
             connection: null,
             connection_id: null,
-            isReadOnly: false,
+            isReadOnly: true,
             unsavedChanges: false,
         }
     },
@@ -183,6 +183,7 @@ export default {
             let data = JSON.parse(message.data);
             if (data.operation == "connected") {
                 this.connection_id = data.data.id;
+                this.setCodeSpaceMode(data.data.mode);
             } else if (data.operation == 'insert_value' && data.sender != this.connection_id) {
                 let insertedBefore = 0;
                 let selections = data.changes.map(change => {
@@ -205,17 +206,21 @@ export default {
                 })
                 let selection = EditorSelection.create(selections);
                 selection.isWebSocketUpdate = true;
-
                 this.EditorView.dispatch({
                     selection: selection,
                 })
             }
         },
+        setCodeSpaceMode(mode) {
+            if (mode == "edit") {
+                this.isReadOnly = false;
+            }
+        },
         onCodeChange(value, viewUpdate) {
             this.unsavedChanges = true;
-            if (!viewUpdate.changes.isWebSocketUpdate) {
+            if (!this.isReadOnly && !viewUpdate.changes.isWebSocketUpdate) {
                 let message = this.createChangesMessage(viewUpdate);
-                this.connection.send(JSON.stringify(message));
+                this.sendWebSocketMessage(message);
             }
         },
         createChangesMessage(viewUpdate) {
@@ -237,7 +242,7 @@ export default {
             };
         },
         createSelection(viewUpdate) {
-            if (!viewUpdate.startState.selection.isWebSocketUpdate) {
+            if (!this.isReadOnly && !viewUpdate.state.selection.isWebSocketUpdate) {
                 let startSelection = viewUpdate.startState.selection;
                 let curSelection = viewUpdate.state.selection;
                 if (!curSelection.eq(startSelection)) {
@@ -252,9 +257,14 @@ export default {
                             sender: this.connection_id,
                             selections: selections
                         };
-                        this.connection.send(JSON.stringify(message));
+                        this.sendWebSocketMessage(message);
                     }
                 }
+            }
+        },
+        sendWebSocketMessage(message) {
+            if (!this.isReadOnly) {
+                this.connection.send(JSON.stringify(message));
             }
         },
         changeTheme(theme) {
