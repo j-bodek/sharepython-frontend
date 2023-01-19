@@ -149,6 +149,7 @@ export default {
             const response = await axios.post("codespace/access/token/", {
                 codespace_uuid: this.uuid,
                 expire_time: 120,
+                mode: "edit", // create (owner) token in edit mode
             }, {
                 withCredentials: true,
             })

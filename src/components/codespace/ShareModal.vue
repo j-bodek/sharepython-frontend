@@ -6,6 +6,11 @@
         <MDBModalBody>
             <MDBRange v-if="isRegularUuid" label="Expiry Period (In Days)" v-model="expire_time_range" :min="1"
                 :max="200" />
+            <div class="my-3">
+                <MDBSwitch v-if="isRegularUuid" wrapperClass="text-start" label="View Only Mode"
+                    v-model="view_only_switch" />
+                <p class="text-start">{{ modeSwitchHelpText }}</p>
+            </div>
             <div class="d-flex">
                 <div class="w-100">
                     <MDBInput ref="shareUrlInput" label="Share URL" v-model="shareCodespaceUrl" readonly />
@@ -33,7 +38,8 @@ import {
     MDBModalFooter,
     MDBBtn,
     MDBRange,
-    MDBInput
+    MDBInput,
+    MDBSwitch
 } from "mdb-vue-ui-kit";
 import { shallowRef, ref } from 'vue'
 import axios from "axios";
@@ -49,13 +55,15 @@ export default {
         MDBModalFooter,
         MDBBtn,
         MDBRange,
-        MDBInput
+        MDBInput,
+        MDBSwitch
     },
     data() {
         return {
             expire_time_range: ref(50),
-            shareCodespaceUrl: ref(""),
             copiedShareUrl: ref(false),
+            view_only_switch: ref(false),
+            shareCodespaceUrl: ref(""),
         }
     },
     mounted() {
@@ -69,6 +77,20 @@ export default {
             // check if is regular or tmp uuid (or token)
             return this.uuid && !this.uuid.startsWith("tmp-");
         },
+        modeSwitchHelpText() {
+            if (!this.view_only_switch) {
+                return "Collaborators will be able to edit your code";
+            } else {
+                return "Collaborators will only be able to see the code";
+            }
+        },
+        getTokenMode() {
+            if (this.view_only_switch) {
+                return "view_only";
+            } else {
+                return "edit";
+            }
+        }
     },
     methods: {
         emitClose(e) {
@@ -84,6 +106,7 @@ export default {
             axios.post("codespace/access/token/", {
                 codespace_uuid: this.uuid,
                 expire_time: 24 * 60 * 60 * this.expire_time_range,
+                mode: this.getTokenMode,
             }, {
                 withCredentials: true,
             }).catch(err => {
