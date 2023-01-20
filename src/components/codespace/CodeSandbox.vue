@@ -217,7 +217,7 @@ export default {
             }
         },
         onCodeChange(value, viewUpdate) {
-            if (!this.uuid.startsWith("tmp-")) {
+            if (this.uuid && !this.uuid.startsWith("tmp-")) {
                 this.unsavedChanges = true;
             }
             if (!this.isReadOnly && !viewUpdate.changes.isWebSocketUpdate) {

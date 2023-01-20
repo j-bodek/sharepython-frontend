@@ -14,9 +14,7 @@
                             class="button btn btn-sm text-white" style="background: #413A3A">
                             <i class="fa-solid fa-share"></i>
                         </button>
-                        <button class="button btn btn-sm text-white" style="background: #413A3A">
-                            <i class="fa-solid fa-download"></i>
-                        </button>
+                        <download-code-btn></download-code-btn>
                     </div>
                 </template>
             </code-sandbox>
@@ -32,6 +30,7 @@
 import { shallowRef, ref } from 'vue'
 import ShareModal from '../components/codespace/ShareModal.vue';
 import CodeSandbox from '../components/codespace/CodeSandbox.vue';
+import DownloadCodeBtn from '../components/codespace/DownloadCodeBtn.vue';
 import CodespaceTerminal from '../components/codespace/CodespaceTerminal.vue';
 
 export default {
@@ -40,6 +39,7 @@ export default {
         CodeSandbox,
         ShareModal,
         CodespaceTerminal,
+        DownloadCodeBtn
     },
     data() {
         return {
@@ -51,7 +51,7 @@ export default {
     },
     computed: {
         token() {
-            if (this.uuid.startsWith("tmp-")) {
+            if (this.uuid && this.uuid.startsWith("tmp-")) {
                 return this.uuid;
             } else {
                 return this.route_token;
