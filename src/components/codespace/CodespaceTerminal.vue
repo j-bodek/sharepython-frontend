@@ -22,9 +22,10 @@
                 <div class="terminal-btn bg-warning me-2"></div>
                 <div class="terminal-btn bg-success me-2"></div>
             </div>
-            <ul class="output-box" ref="outputBox">
-
-            </ul>
+            <div class="output-box">
+                <div v-for="output in outputs">{{ output }}</div>
+                <div v-for="error in errors" class="error">{{ error }}</div>
+            </div>
         </div>
     </div>
 </template>
@@ -38,6 +39,8 @@ export default {
         return {
             pyodide: null,
             isPyodideLoaded: false,
+            outputs: [],
+            errors: [],
         }
     },
     created() {
@@ -56,7 +59,8 @@ export default {
                     this.pyodide = await loadPyodide({
                         indexURL: "https://cdn.jsdelivr.net/pyodide/v0.22.0/full/",
                     });
-                    this.pyodide.setStdout({ batched: this.stdOutput, })
+                    this.pyodide.setStdout({ batched: this.stdOutputHandler });
+                    this.pyodide.setStderr({ batched: this.stdErrorHandler });
                     this.isPyodideLoaded = true;
                 }
             } catch (error) {
@@ -66,16 +70,22 @@ export default {
         execute() {
             try {
                 // clean output box
-                this.$refs.outputBox.innerHTML = '';
+                this.outputs = [];
+                this.errors = [];
                 this.pyodide.runPython(this.codespaceData.code);
             } catch (error) {
-                console.log(error)
+                this.displayError(error.message);
             }
         },
-        stdOutput(output) {
-            let li = document.createElement('li');
-            li.innerHTML = output;
-            this.$refs.outputBox.appendChild(li);
+        stdOutputHandler(output) {
+            this.outputs.push(output);
+        },
+        stdErrorHandler(error) {
+            this.displayError(error.message);
+        },
+        displayError(error_msg) {
+            console.log(error_msg);
+            this.errors.push(error_msg);
         }
     }
 }
@@ -104,7 +114,6 @@ export default {
 }
 
 .output-box {
-    list-style-type: none;
     color: #b9b5b8;
     padding: 7px 10px;
     margin: 0px;
@@ -115,6 +124,10 @@ export default {
     white-space: nowrap;
 }
 
+.output-box .error {
+    color: #ff6766;
+    white-space: pre;
+}
 
 .loading-screen {
     width: 100%;
