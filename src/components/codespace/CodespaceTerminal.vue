@@ -1,7 +1,7 @@
 <template>
     <div>
-        <div v-if="!isPyodideLoaded" class="loadingScreen">
-            <div class="loadingScreenContent">
+        <div v-if="!isPyodideLoaded" class="loading-screen">
+            <div class="loading-screen-content">
                 <div class="lds-ellipsis">
                     <div></div>
                     <div></div>
@@ -11,20 +11,20 @@
                 <h6>Loading Pyodide ...</h6>
             </div>
         </div>
-        <button id="execute_btn" class="btn btn-outline-success mb-2">
+        <button @click="execute" id="execute_btn" class="btn btn-outline-success mb-2">
             <i class="fa-solid fa-play"></i>
             <span class="ms-2 fw-bold">Run</span>
         </button>
         <!-- {{ syntaxedCode }} -->
         <div class="terminal w-100 rounded">
-            <div class="w-100 d-flex p-1" style="background: #2B2626">
+            <div class="w-100 d-flex p-1" style="background: #413A3A">
                 <div class="terminal-btn bg-danger me-2"></div>
                 <div class="terminal-btn bg-warning me-2"></div>
                 <div class="terminal-btn bg-success me-2"></div>
             </div>
-            <div id="output-box">
+            <ul class="output-box" ref="outputBox">
 
-            </div>
+            </ul>
         </div>
     </div>
 </template>
@@ -56,13 +56,27 @@ export default {
                     this.pyodide = await loadPyodide({
                         indexURL: "https://cdn.jsdelivr.net/pyodide/v0.22.0/full/",
                     });
-                    this.pyodide.setStdout({ batched: this.stdOutput, raw: this.stdOutput })
+                    this.pyodide.setStdout({ batched: this.stdOutput, })
                     this.isPyodideLoaded = true;
                 }
             } catch (error) {
-                alert(error);
+                alert(error)
             }
         },
+        execute() {
+            try {
+                // clean output box
+                this.$refs.outputBox.innerHTML = '';
+                this.pyodide.runPython(this.codespaceData.code);
+            } catch (error) {
+                console.log(error)
+            }
+        },
+        stdOutput(output) {
+            let li = document.createElement('li');
+            li.innerHTML = output;
+            this.$refs.outputBox.appendChild(li);
+        }
     }
 }
 </script>
@@ -70,7 +84,7 @@ export default {
 <style scoped>
 .terminal {
     height: 250px;
-    background-color: #413A3A;
+    background-color: #2B2727;
     overflow: hidden;
 }
 
@@ -89,7 +103,20 @@ export default {
     color: white !important;
 }
 
-.loadingScreen {
+.output-box {
+    list-style-type: none;
+    color: #b9b5b8;
+    padding: 7px 10px;
+    margin: 0px;
+    font-weight: 700;
+    width: 100%;
+    height: calc(100% - 14px);
+    overflow: auto;
+    white-space: nowrap;
+}
+
+
+.loading-screen {
     width: 100%;
     height: 100%;
     background-color: rgb(0, 0, 0, 0.6);
@@ -101,7 +128,7 @@ export default {
     display: flex;
 }
 
-.loadingScreenContent {
+.loading-screen-content {
     margin: auto;
     width: fit-content;
     height: fit-content;
