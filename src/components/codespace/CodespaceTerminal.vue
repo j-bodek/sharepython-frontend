@@ -25,6 +25,7 @@
             <div class="output-box">
                 <div v-for="output in outputs">{{ output }}</div>
                 <div v-for="error in errors" class="error">{{ error }}</div>
+                <input v-if="isStdin" type="text">
             </div>
         </div>
     </div>
@@ -32,13 +33,13 @@
 
 <script>
 import { loadPyodide } from "pyodide";
-import { Vue } from "vue";
 export default {
     name: "CodespaceTerminal",
     data() {
         return {
             pyodide: null,
             isPyodideLoaded: false,
+            isStdin: false,
             outputs: [],
             errors: [],
         }
@@ -58,6 +59,7 @@ export default {
                 if (this.pyodide == null) {
                     this.pyodide = await loadPyodide({
                         indexURL: "https://cdn.jsdelivr.net/pyodide/v0.22.0/full/",
+                        stdin: this.stdInputHandler,
                     });
                     this.pyodide.setStdout({ batched: this.stdOutputHandler });
                     this.pyodide.setStderr({ batched: this.stdErrorHandler });
@@ -72,12 +74,21 @@ export default {
                 // clean output box
                 this.outputs = [];
                 this.errors = [];
-                this.pyodide.runPython(this.codespaceData.code);
+                setTimeout(() => {
+                    this.pyodide.runPython(this.codespaceData.code)
+                }, 25)
             } catch (error) {
                 this.displayError(error.message);
             }
         },
+        stdInputHandler() {
+            if (!this.isStdin) {
+                this.isStdin = true;
+                return prompt();
+            }
+        },
         stdOutputHandler(output) {
+            this.isStdin = false;
             this.outputs.push(output);
         },
         stdErrorHandler(error) {
