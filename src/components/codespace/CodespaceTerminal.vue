@@ -32,21 +32,26 @@
 </template>
 
 <script>
-import { loadPyodide } from "pyodide";
 export default {
     name: "CodespaceTerminal",
     data() {
         return {
-            pyodide: null,
-            isPyodideLoaded: false,
+            pyodideWorker: null,
+            isPyodideLoaded: true,
             isStdin: false,
             outputs: [],
             errors: [],
         }
     },
     created() {
-        this.loadPyodideInstance();
-
+        this.pyodideWorker = new Worker("/pyodideWorker.js");
+        let that = this;
+        this.pyodideWorker.onmessage = function (event) {
+            const data = event.data // Data passed as parameter by the worker is retrieved from 'data' attribute
+            if (data.method) {
+                that[data.method](data.payload);
+            }
+        }
     },
     computed: {
         codespaceData() {
@@ -54,32 +59,10 @@ export default {
         },
     },
     methods: {
-        async loadPyodideInstance() {
-            try {
-                if (this.pyodide == null) {
-                    this.pyodide = await loadPyodide({
-                        indexURL: "https://cdn.jsdelivr.net/pyodide/v0.22.0/full/",
-                        stdin: this.stdInputHandler,
-                    });
-                    this.pyodide.setStdout({ batched: this.stdOutputHandler });
-                    this.pyodide.setStderr({ batched: this.stdErrorHandler });
-                    this.isPyodideLoaded = true;
-                }
-            } catch (error) {
-                alert(error)
-            }
-        },
         execute() {
-            try {
-                // clean output box
-                this.outputs = [];
-                this.errors = [];
-                setTimeout(() => {
-                    this.pyodide.runPython(this.codespaceData.code)
-                }, 25)
-            } catch (error) {
-                this.displayError(error.message);
-            }
+            this.outputs = [];
+            this.errors = [];
+            this.pyodideWorker.postMessage({ "code": this.codespaceData.code })
         },
         stdInputHandler() {
             if (!this.isStdin) {
@@ -87,15 +70,14 @@ export default {
                 return prompt();
             }
         },
-        stdOutputHandler(output) {
+        stdOutputHandler(payload) {
             this.isStdin = false;
-            this.outputs.push(output);
+            this.outputs.push(payload.output);
         },
-        stdErrorHandler(error) {
-            this.displayError(error.message);
+        stdErrorHandler(payload) {
+            this.displayError(payload.error.message);
         },
         displayError(error_msg) {
-            console.log(error_msg);
             this.errors.push(error_msg);
         }
     }
