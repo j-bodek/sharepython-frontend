@@ -4,12 +4,20 @@
             <MDBModalTitle id="shareModalLabel">Share Your Code In Real Time!</MDBModalTitle>
         </MDBModalHeader>
         <MDBModalBody>
-            <MDBRange v-if="isRegularUuid" label="Expiry Period (In Days)" v-model="expire_time_range" :min="1"
+            <div v-if="!isRegularUuid">
+                <p>
+                    <b>
+                        <router-link to="/login">Login</router-link> or <router-link to="/signup">Sing Up</router-link>
+                        to enable following options and <span class="text-success">save your code</span>
+                    </b>
+                </p>
+            </div>
+            <MDBRange :disabled="!isRegularUuid" label="Expiry Period (In Days)" v-model="expire_time_range" :min="1"
                 :max="200" />
             <div class="my-3">
-                <MDBSwitch v-if="isRegularUuid" wrapperClass="text-start" label="View Only Mode"
+                <MDBSwitch :disabled="!isRegularUuid" wrapperClass="text-start" label="View Only Mode"
                     v-model="view_only_switch" />
-                <p class="text-start">{{ modeSwitchHelpText }}</p>
+                <p v-if="isRegularUuid" class="text-start">{{ modeSwitchHelpText }}</p>
             </div>
             <div class="d-flex">
                 <div class="w-100">
