@@ -1,6 +1,6 @@
 <template>
     <div>
-        <div v-if="!isPyodideLoaded" class="loading-screen">
+        <div v-if="!isMainPyodideLoaded && !isWorkerPyodideLoaded" class="loading-screen">
             <div class="loading-screen-content">
                 <div class="lds-ellipsis">
                     <div></div>
@@ -23,28 +23,32 @@
                 <div class="terminal-btn bg-success me-2"></div>
             </div>
             <div class="output-box">
+                <p v-if="isCodeRunning" class="text-warning">Running ...</p>
                 <div v-for="output in outputs">{{ output }}</div>
                 <div v-for="error in errors" class="error">{{ error }}</div>
-                <input v-if="isStdin" type="text">
             </div>
         </div>
     </div>
 </template>
 
 <script>
+import { loadPyodide } from "pyodide";
 export default {
     name: "CodespaceTerminal",
     data() {
         return {
             pyodideWorker: null,
-            isPyodideLoaded: true,
+            isMainPyodideLoaded: false,
+            isWorkerPyodideLoaded: false,
             isStdin: false,
+            isCodeRunning: false,
             outputs: [],
             errors: [],
         }
     },
     created() {
         this.pyodideWorker = new Worker("/pyodideWorker.js");
+        this.loadPyodideInstance();
         let that = this;
         this.pyodideWorker.onmessage = function (event) {
             const data = event.data // Data passed as parameter by the worker is retrieved from 'data' attribute
@@ -59,10 +63,46 @@ export default {
         },
     },
     methods: {
+        async loadPyodideInstance() {
+            try {
+                if (this.pyodide == null) {
+                    this.pyodide = await loadPyodide({
+                        indexURL: "https://cdn.jsdelivr.net/pyodide/v0.22.0/full/",
+                        stdin: this.stdInputHandler,
+                        stdout: this.stdOutputHandler,
+                        stderr: this.stdErrorHandler,
+                    });
+                    this.isMainPyodideLoaded = true;
+                }
+            } catch (error) {
+                alert(error)
+            }
+        },
+        async executeInMainThread() {
+            try {
+                await this.pyodide.runPython(this.codespaceData.code)
+            } catch (error) {
+                this.displayError(error.message);
+            }
+            this.isStdin = false;
+            this.isCodeRunning = false;
+        },
         execute() {
             this.outputs = [];
             this.errors = [];
-            this.pyodideWorker.postMessage({ "code": this.codespaceData.code })
+            if (this.codespaceData.code.includes("input(")) {
+                console.log("error main")
+                this.isCodeRunning = true;
+                setTimeout(() => {
+                    this.executeInMainThread()
+                }, 25);
+            } else {
+                console.log("error worker")
+                this.pyodideWorker.postMessage({ "code": this.codespaceData.code })
+            }
+        },
+        onPyodideLoaded() {
+            this.isWorkerPyodideLoaded = true;
         },
         stdInputHandler() {
             if (!this.isStdin) {
@@ -70,12 +110,12 @@ export default {
                 return prompt();
             }
         },
-        stdOutputHandler(payload) {
+        stdOutputHandler(output) {
             this.isStdin = false;
-            this.outputs.push(payload.output);
+            this.outputs.push(output);
         },
-        stdErrorHandler(payload) {
-            this.displayError(payload.error.message);
+        stdErrorHandler(error) {
+            this.displayError(error["error"]);
         },
         displayError(error_msg) {
             this.errors.push(error_msg);
@@ -83,6 +123,7 @@ export default {
     }
 }
 </script>
+
 
 <style scoped>
 .terminal {

@@ -5,14 +5,14 @@ let pyodide = null;
 function stdOutputHandler(output){
   postMessage({
     "method":"stdOutputHandler", 
-    "payload":{"output":output}}
+    "payload":output}
   )
 }
 
 function stdErrorHandler(error){
   postMessage({
     "method":"stdErrorHandler", 
-    "payload":{"error":error}}
+    "payload":error}
   )
 }
 
@@ -22,7 +22,7 @@ async function loadPyodideWrapper(){
         stdout:stdOutputHandler,
         stderr:stdErrorHandler,
     });
-    postMessage({"action":"isLoaded"})
+    postMessage({"method":"onPyodideLoaded", "payload": null})
 }
 
 loadPyodideWrapper();
