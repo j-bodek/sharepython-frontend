@@ -4,6 +4,7 @@ import axios from 'axios';
 
 // pages
 import LandingPage from './pages/LandingPage.vue';
+import NotFoundPage from './pages/NotFoundPage.vue';
 import LoginPage from './pages/LoginPage.vue';
 import SignUpPage from './pages/SignUpPage.vue';
 import SettingsPage from './pages/SettingsPage.vue';
@@ -21,6 +22,7 @@ const router = createRouter({
         {path: '/codespace/:uuid(tmp-[a-f0-9]{8}-?[a-f0-9]{4}-?4[a-f0-9]{3}-?[89ab][a-f0-9]{3}-?[a-f0-9]{12}|[a-f0-9]{8}-?[a-f0-9]{4}-?4[a-f0-9]{3}-?[89ab][a-f0-9]{3}-?[a-f0-9]{12})/', name:"codespace_with_uuid", component: CodeSpacePage},
         {path: '/codespace/:token([a-zA-Z0-9_-]*={0,3})/', name:"codespace_with_token", component: CodeSpacePage},
         {path: '/codespaces/', name:"codespaces_list", "meta":{requiresAuthentication:true}, component: CodeSpaceListingPage},
+        {path:"/:notFound(.*)*", name:"not_found", component: NotFoundPage}
     ]
 });
 
