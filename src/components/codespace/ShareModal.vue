@@ -117,7 +117,7 @@ export default {
                     let hostname = window.location.hostname
                     let port = window.location.port
                     let path = this.$router.resolve({ name: "codespace_with_token", params: { token: response.data.token } }).fullPath;
-                    let url = `${protocol}://${hostname}:${port}${path}`;
+                    let url = `${protocol}//${hostname}:${port}${path}`;
                     this.shareCodespaceUrl = url;
                 }
             })

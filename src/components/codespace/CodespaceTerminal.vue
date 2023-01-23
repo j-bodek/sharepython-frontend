@@ -23,7 +23,7 @@
                 <div class="terminal-btn bg-success me-2"></div>
             </div>
             <div class="output-box">
-                <p v-if="isCodeRunning" class="text-warning">Running ...</p>
+                <p v-if="isCodeRunning">Running ...</p>
                 <div v-for="output in outputs">{{ output }}</div>
                 <div v-for="error in errors" class="error">{{ error }}</div>
             </div>
@@ -91,13 +91,11 @@ export default {
             this.outputs = [];
             this.errors = [];
             if (this.codespaceData.code.includes("input(")) {
-                console.log("error main")
                 this.isCodeRunning = true;
                 setTimeout(() => {
                     this.executeInMainThread()
                 }, 25);
             } else {
-                console.log("error worker")
                 this.pyodideWorker.postMessage({ "code": this.codespaceData.code })
             }
         },
