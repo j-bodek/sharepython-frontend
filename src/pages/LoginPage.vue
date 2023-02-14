@@ -4,7 +4,6 @@
             <h1 class="mb-5" style="font-size: 3rem">Log In</h1>
 
             <form class="w-100" v-on:submit.prevent="submit">
-                <p>{{ user }}</p>
                 <div class="mb-5">
                     <p v-if="error" class="mb-3 text-danger fw-bold">{{ error }}</p>
 
@@ -20,6 +19,11 @@
 
                 <!-- Submit button -->
                 <button type="submit" class="btn btn-primary btn-block">Log In</button>
+
+                <!-- Reset password link -->
+                <router-link to="forgot-password">
+                    <p class="text-decoration-underline mt-3">Forgot Your Password?</p>
+                </router-link>
             </form>
         </div>
     </div>
@@ -40,11 +44,6 @@ export default {
             email: "",
             password: "",
             error: "",
-        }
-    },
-    computed: {
-        user() {
-            return this.$store.getters["getUser"];
         }
     },
     methods: {
