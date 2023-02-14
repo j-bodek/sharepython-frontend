@@ -31,7 +31,7 @@ import { MDBInput } from 'mdb-vue-ui-kit';
 import axios from 'axios';
 
 export default {
-    name: "LoginPage",
+    name: "ForgotPasswordPage",
     components: {
         "mdb-input": MDBInput,
     },

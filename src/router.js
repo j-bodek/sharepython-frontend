@@ -7,6 +7,8 @@ import LandingPage from './pages/LandingPage.vue';
 import NotFoundPage from './pages/NotFoundPage.vue';
 import LoginPage from './pages/LoginPage.vue';
 import SignUpPage from './pages/SignUpPage.vue';
+import ForgotPasswordPage from './pages/ForgotPasswordPage.vue';
+import ResetPasswordPage from './pages/ResetPasswordPage.vue';
 import SettingsPage from './pages/SettingsPage.vue';
 import CodeSpacePage from './pages/CodeSpacePage.vue'
 import CodeSpaceListingPage from './pages/CodeSpaceListingPage.vue'
@@ -18,6 +20,8 @@ const router = createRouter({
         {path: '/', name:"home", component: LandingPage},
         {path: '/login', name:"login", "meta":{requiresGuest:true}, component: LoginPage},
         {path: '/signup', name:"signup", "meta":{requiresGuest:true}, component: SignUpPage},
+        {path: '/forgot-password', name:"forgot_password", "meta":{requiresGuest:true}, component: ForgotPasswordPage},
+        {path: '/reset-password/:token([a-zA-Z0-9_-]*={0,3})/', name:"reset_password", "meta":{requiresGuest:true}, component: ResetPasswordPage},
         {path: '/settings', name:"settings", "meta":{requiresAuthentication:true}, component: SettingsPage},
         {path: '/codespace/:uuid(tmp-[a-f0-9]{8}-?[a-f0-9]{4}-?4[a-f0-9]{3}-?[89ab][a-f0-9]{3}-?[a-f0-9]{12}|[a-f0-9]{8}-?[a-f0-9]{4}-?4[a-f0-9]{3}-?[89ab][a-f0-9]{3}-?[a-f0-9]{12})/', name:"codespace_with_uuid", component: CodeSpacePage},
         {path: '/codespace/:token([a-zA-Z0-9_-]*={0,3})/', name:"codespace_with_token", component: CodeSpacePage},
