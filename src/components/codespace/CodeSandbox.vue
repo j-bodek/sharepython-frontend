@@ -61,6 +61,7 @@ export default {
     },
     data() {
         return {
+            base_ws_url: process.env.VUE_APP_BASE_WS_URL,
             themes: {
                 "one-dark": oneDark,
                 "material-light": materialLight,
@@ -136,7 +137,7 @@ export default {
             } else {
                 token = this.token;
             }
-            this.connection = new WebSocket(`ws://localhost:8888/codespace/${token}/`)
+            this.connection = new WebSocket(`${this.base_ws_url}codespace/${token}/`)
             let that = this;
             this.connection.addEventListener("close", e => {
                 that.handleConnectionClosed(e);
@@ -174,8 +175,7 @@ export default {
             this.EditorState = payload.state;
         },
         handleConnectionClosed(event) {
-            if (event.reason != "unmounted") {
-                alert("Session has expired. Refresh to reconnect");
+            if (event.reason != "unmounted" && confirm("Session has expired. Refresh to reconnect")) {
                 location.reload();
             };
         },
