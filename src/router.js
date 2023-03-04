@@ -14,7 +14,6 @@ import CodeSpacePage from './pages/CodeSpacePage.vue'
 import CodeSpaceListingPage from './pages/CodeSpaceListingPage.vue'
 
 const router = createRouter({
-    base: 'https://example.com/app',
     history: createWebHistory(),
     routes:[
         {path: '/', name:"home", component: LandingPage},

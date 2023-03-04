@@ -1,7 +1,7 @@
 import axios from 'axios';
 import store from '../store/index.js';
 
-axios.defaults.baseURL = "http://0.0.0.0:8000/api/";
+axios.defaults.baseURL = process.env.VUE_APP_BASE_API_URL;
 if (localStorage.getItem("access")){
     axios.defaults.headers.common["Authorization"] = `Bearer ${localStorage.getItem("access")}`;
 }
