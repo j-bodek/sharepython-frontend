@@ -1,5 +1,5 @@
 
-FROM node:16
+FROM --platform=linux/amd64 node:16
 
 # make the 'frontend' folder the current working directory
 WORKDIR /frontend
