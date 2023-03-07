@@ -21,7 +21,21 @@ export default {
             FileSaver.saveAs(file, `${fileName}.py`);
         },
         createFileName() {
-            return this.codespaceData.name.trim().toLowerCase().replaceAll(" ", "_")
+            let name;
+            if (this.codespaceData.name) {
+                name = this.codespaceData.name;
+            } else {
+                let date = new Date().toLocaleDateString();
+                let time = new Date().toLocaleTimeString('en-US', {
+                    hour12: false,
+                    hour: "numeric",
+                    minute: "numeric",
+                    second: "numeric"
+                });
+                name = `${date}-${time}`;
+            }
+
+            return name.trim().toLowerCase().replaceAll(" ", "_")
         }
     }
 }
