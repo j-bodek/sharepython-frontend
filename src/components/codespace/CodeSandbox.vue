@@ -185,20 +185,12 @@ export default {
                 this.connection_id = data.data.id;
                 this.setCodeSpaceMode(data.data.mode);
             } else if (data.operation == 'insert_value' && data.sender != this.connection_id) {
-                let insertedBefore = 0;
-                let selections = data.changes.map(change => {
-                    let sel = EditorSelection.cursor(change.from + insertedBefore + change.insert.length);
-                    insertedBefore += (change.from - change.to + change.insert.length);
-                    return sel
-                })
-
                 // this parameter is used to defferentiate if change
                 // was received from websockets or from user input
                 let changes = ChangeSet.of(data.changes, data.doc_length)
                 changes.isWebSocketUpdate = true;
                 this.EditorView.dispatch({
                     changes: changes,
-                    selection: EditorSelection.create(selections),
                 })
             } else if (data.operation == 'create_selection' && data.sender != this.connection_id) {
                 let selections = data.selections.map(selection => {
